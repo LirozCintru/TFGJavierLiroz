@@ -1,0 +1,19 @@
+# Solo se ejecuta esta directiva si el módulo esta activo (comprobar en apache)
+<IfModule mod_rewrite.c> 
+    # Evitamos que apache redireccione en caso de 404 por si mismo
+    Options -Multiviews 
+    
+    # Activamos la rescritura de la URL para redireccionarla a index.php si Error 404
+    RewriteEngine On
+    RewriteBase /mvc/public
+    # Comprobamos que no sea un directorio la URL
+    RewriteCond %{REQUEST_FILENAME} !-d 
+    # Comprobamos que no corresponde a un fichero existente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Si la pagina solicitada no existe o es directorio redireccionamos a i index.php
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+
+

@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+# Eliminamos la necesidad de indicar la carpeta public en la URL
+# Antes:  http://127.0.0.1/DWES/mvc/public/controlador/metodo/argumento
+# Ahora: http://127.0.0.1/DWES/mvc/controlador/metodo/argumento
+RewriteEngine on
+RewriteRule ^$ public/ [L]
+RewriteRule (.*) public/$1 [L]
+</IfModule>
