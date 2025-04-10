@@ -51,3 +51,94 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-01-28 13:34:42
+
+
+/*
+
+CREATE DATABASE IF NOT EXISTS intralink;
+USE intralink;
+
+-- Tabla Roles
+CREATE TABLE roles (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol VARCHAR(100) NOT NULL
+);
+
+-- Tabla Departamentos
+CREATE TABLE departamentos (
+    id_departamento INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla Usuarios
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL,
+    id_departamento INT,
+    id_rol INT,
+    activo BOOL DEFAULT TRUE,
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento),
+    FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
+);
+
+-- Tabla Publicaciones
+CREATE TABLE publicaciones (
+    id_publicacion INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    contenido TEXT,
+    id_autor INT,
+    id_departamento INT,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_autor) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento)
+);
+
+-- Tabla Comentarios
+CREATE TABLE comentarios (
+    id_comentario INT AUTO_INCREMENT PRIMARY KEY,
+    contenido TEXT,
+    id_usuario INT,
+    id_publicacion INT,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id_publicacion)
+);
+
+-- Tabla Reacciones
+CREATE TABLE reacciones (
+    id_reaccion INT AUTO_INCREMENT PRIMARY KEY,
+    tipo VARCHAR(50),
+    id_usuario INT,
+    id_publicacion INT,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id_publicacion)
+);
+
+-- Tabla Mensajes
+CREATE TABLE mensajes (
+    id_mensaje INT AUTO_INCREMENT PRIMARY KEY,
+    contenido TEXT,
+    id_remitente INT,
+    id_destinatario INT,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    leido BOOL DEFAULT FALSE,
+    FOREIGN KEY (id_remitente) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_destinatario) REFERENCES usuarios(id_usuario)
+);
+
+-- Tabla Eventos
+CREATE TABLE eventos (
+    id_evento INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    fecha DATE,
+    hora TIME,
+    id_departamento INT,
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento)
+);
+
+
+*/
