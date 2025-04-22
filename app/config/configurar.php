@@ -2,8 +2,8 @@
 // Configuracion de acceso a la base de datos
 define('DB_HOST', 'localhost');
 define('DB_USUARIO', 'root');
-define('DB_PASSWORD', 'mysql'); // Pass por defecto al instalar AMMPS
-define('DB_NOMBRE', 'mvc');
+define('DB_PASSWORD', '1234'); // Pass por defecto al instalar AMMPS
+define('DB_NOMBRE', 'intralink');
 
 
 // Ruta de la aplicación raiz /localhost/DWES/mvc

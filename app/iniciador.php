@@ -12,6 +12,6 @@ require_once 'helpers/url_helper.php';
 // la función autoload que nos permite cargar 
 // todos los ficheros que se encuentren en la carpeta librerias
 // sin tener que indicarlos uno a uno
-spl_autoload_register(function($nombreClase){
-    require_once 'librerias/' . $nombreClase. '.php';
+spl_autoload_register(callback: function($nombreClase){
+    require_once 'core/' . $nombreClase. '.php';
 });

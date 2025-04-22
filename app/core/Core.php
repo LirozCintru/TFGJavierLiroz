@@ -15,8 +15,8 @@ class Core {
 
     // Establecemos controlador, metodo y parametros por defecto
     // En caso de que no venga indicado en la URL
-    protected $controladorActual = 'paginas';
-    protected $metodoActual = 'index';
+    protected $controladorActual = 'AuthController';
+    protected $metodoActual = 'login';
     protected $parametros =[];
 
     public function __construct(){

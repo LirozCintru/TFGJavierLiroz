@@ -7,6 +7,13 @@ class Usuario {
         $this->db = new DataBase();
     }
 
+    public static function buscarPorEmail($pdo, $email) {
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
     public function obtenerUsuarios() {
         $this->db->query("SELECT * from Usuarios");
 
