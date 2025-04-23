@@ -16,22 +16,22 @@ class Logins extends Controlador
     }
     public function acceder()
     {
-        session_start();
-
-        var_dump($_POST);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            session_start();
 
             $email = trim($_POST['email']);
             $contrasena = trim($_POST['contrasena']);
 
-            $usuarioDB = $this->loginModelo->iniciarSesion(['email' => $email, 'contrasena' => $contrasena]);
+            $usuarioDB = $this->modeloUsuario->iniciarSesion([
+                'email' => $email,
+                'contrasena' => $contrasena
+            ]);
 
             if ($usuarioDB) {
                 $_SESSION['usuario'] = $usuarioDB;
-                header('Location: ' . RUTA_URL . '/logins/dashboard');
+                header('Location: ' . RUTA_URL . '/logins/dashboardVista');
                 exit();
             } else {
-                // Esto es importante: carga nuevamente la vista de login mostrando error.
                 $datos['error'] = "Credenciales incorrectas.";
                 $this->vista('auth/loginVista', $datos);
             }
@@ -40,17 +40,18 @@ class Logins extends Controlador
         }
     }
 
-    public function dashboard(){
+    public function dashboard()
+    {
         session_start();
-        if(!isset($_SESSION['usuario'])){
-            header('Location: '.RUTA_URL.'/logins');
+        if (!isset($_SESSION['usuario'])) {
+            header('Location: ' . RUTA_URL . '/logins');
             exit();
         }
-    
+
         $datos = $_SESSION['usuario'];
         $this->vista('dashboard/dashboard', $datos);
     }
-    
+
 
     public function salir()
     {
