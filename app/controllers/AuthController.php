@@ -1,11 +1,10 @@
 <?php
-require_once 'models/Usuario.php';
-require_once 'config/config.php';
-require_once '../app/helpers/Auth.php';
+require_once RUTA_APP . '/models/Usuario.php';
+require_once RUTA_APP . '/config/configurar.php';
 
 class AuthController {
     public function login() {
-        require 'views/auth/login.php';
+        require RUTA_APP . '/views/auth/login.php';
     }
 
     public function procesarLogin() {
@@ -16,6 +15,8 @@ class AuthController {
 
         $usuario = Usuario::buscarPorEmail($pdo, $email);
 
+        var_dump($usuario); 
+
         if ($usuario && password_verify($password, $usuario['contrasena'])) {
             $_SESSION['usuario'] = [
                 'id' => $usuario['id_usuario'],
@@ -23,15 +24,18 @@ class AuthController {
                 'rol' => $usuario['id_rol'],
                 'departamento' => $usuario['id_departamento']
             ];
-            header('Location: index.php?controller=dashboard&action=index');
+            // Redirección corregida (absoluta desde raíz del servidor web)
+            header('Location: /TFGJavierLiroz/public/index.php?url=dashboard/index');
+            exit;
         } else {
             $error = "Email o contraseña incorrectos";
-            require 'views/auth/login.php';
+            require RUTA_APP . '/views/auth/login.php';
         }
     }
 
     public function logout() {
         session_destroy();
-        header('Location: index.php?controller=auth&action=login');
+        header('Location: /TFGJavierLiroz/public/index.php?url=auth/login');
+        exit;
     }
 }

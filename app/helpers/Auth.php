@@ -9,7 +9,7 @@ function isAdmin() {
 
 function redirectIfNotLoggedIn() {
     if (!isLoggedIn()) {
-        header('Location: /auth/login'); // O como sea tu URL base
+        header('Location: /auth/login');
         exit;
     }
 }

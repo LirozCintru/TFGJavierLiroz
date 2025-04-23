@@ -1,20 +1,15 @@
 <?php
-require_once __DIR__ . '/../models/Usuario.php';
+require_once RUTA_APP . '/models/Usuario.php';
+require_once RUTA_APP . '/helpers/Auth.php';
+
 class DashboardController {
     public function index() {
-        redirectIfNotLoggedIn(); // Solo usuarios logueados pueden ver esto
+        redirectIfNotLoggedIn();
 
-        $usuario = $_SESSION['usuario'];
-        $nombre = $usuario['nombre'];
-        $rol = $usuario['rol']; // Podrías mapearlo a un string con una consulta, si lo prefieres
+        global $pdo;
+        $id_usuario = $_SESSION['usuario']['id'];
+        $usuario = Usuario::obtenerDetalle($pdo, $id_usuario);
 
-        require '../app/views/dashboard/index.php';
+        require RUTA_APP . '/views/dashboard/index.php';
     }
-
-    public function logout() {
-        session_destroy();
-        header('Location: /auth/login');
-        exit;
-    }
-    
 }
