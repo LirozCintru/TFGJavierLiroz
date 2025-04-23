@@ -2,7 +2,7 @@
 // Configuracion de acceso a la base de datos
 define('DB_HOST', 'localhost');
 define('DB_USUARIO', 'root');
-define('DB_PASSWORD', '1234'); // Pass por defecto al instalar AMMPS
+define('DB_PASSWORD', 'mysql'); // Pass por defecto al instalar AMMPS
 define('DB_NOMBRE', 'intralink');
 
 
@@ -14,7 +14,7 @@ define ('RUTA_APP', dirname(dirname(__FILE__)));
 // Ruta URL 
 // Similar a la ruta PATH pero partiendo del dominio
 // En el ejemplo DWES/mvc
-define('RUTA_URL', 'http://localhost/mvc'); // Esta por configurar
+define('RUTA_URL', 'http://localhost/TFGJavierLiroz'); // Esta por configurar
 
 // Nombre del sitio
 define('NOMBRE_SITIO', 'EJEMPLO MVC'); // Esta por configurar

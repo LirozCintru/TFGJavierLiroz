@@ -10,10 +10,6 @@
 <body>
 
 <div class="container mt-5">
-  <div class="list-group">
-  
-    <a href="<?php echo RUTA_URL; ?>/paginas/agregar" class="list-group-item list-group-item-action">Alta</a>    
-  </div>
 </div>
 
 
