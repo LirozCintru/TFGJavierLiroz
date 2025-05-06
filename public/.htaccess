@@ -5,7 +5,7 @@
     
     # Activamos la rescritura de la URL para redireccionarla a index.php si Error 404
     RewriteEngine On
-    RewriteBase /TFGJavierLiroz/
+    RewriteBase /TFGJavierLiroz/public
     # Comprobamos que no sea un directorio la URL
     RewriteCond %{REQUEST_FILENAME} !-d 
     # Comprobamos que no corresponde a un fichero existente
