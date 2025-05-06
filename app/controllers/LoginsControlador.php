@@ -7,7 +7,7 @@ class LoginsControlador extends Controlador
     public function __construct()
     {
         // Acceso al modelo
-        $this->loginModelo = $this->modelo('LoginModelo');
+        $this->modelo = $this->modelo('LoginModelo');
     }
 
     public function index()
@@ -57,7 +57,7 @@ class LoginsControlador extends Controlador
 
             if ($isValid) {
 
-                $usuario = $this->loginModelo->iniciarSesion($datos);
+                $usuario = $this->modelo->iniciarSesion($datos);
 
                 if ($usuario) {
                     // Guardar información relevante en la sesión

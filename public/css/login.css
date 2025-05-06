@@ -1,0 +1,66 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #74ebd5, #9face6);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+.login-background {
+    height: 100vh;
+}
+
+.login-container {
+    background-color: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    font-weight: bold;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.alert {
+    margin-bottom: 20px;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.form-label {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.form-control {
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}

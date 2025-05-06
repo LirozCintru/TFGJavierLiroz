@@ -18,3 +18,5 @@ define('RUTA_URL', 'http://localhost/TFGJavierLiroz'); // Esta por configurar
 
 // Nombre del sitio
 define('NOMBRE_SITIO', 'EJEMPLO MVC'); // Esta por configurar
+
+define('RUTA_PUBLIC', dirname(dirname(__DIR__)) . '/public');
