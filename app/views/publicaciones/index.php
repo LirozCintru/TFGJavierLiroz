@@ -50,10 +50,13 @@
                     in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])
                 ): ?>
                     <div class="mt-3">
-                        <a href="<?php echo RUTA_URL . '/publicaciones/editar/' . $publicacion->id_publicacion; ?>"
+                        <a href="<?php echo RUTA_URL . '/PublicacionesControlador/editar/' . $publicacion->id_publicacion; ?>"
                             class="btn btn-sm btn-outline-primary">Editar</a>
-                        <a href="<?php echo RUTA_URL . '/publicaciones/eliminar/' . $publicacion->id_publicacion; ?>"
-                            class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        <a href="<?php echo RUTA_URL . '/PublicacionesControlador/eliminar/' . $publicacion->id_publicacion; ?>"
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');">
+                            Eliminar
+                        </a>
                     </div>
                 <?php endif; ?>
             </div>

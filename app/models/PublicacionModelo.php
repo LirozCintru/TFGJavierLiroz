@@ -32,8 +32,6 @@ class PublicacionModelo
         return $this->db->registros();
     }
 
-
-
     public function crear($datos)
     {
         $this->db->query("INSERT INTO publicaciones 
@@ -83,11 +81,71 @@ class PublicacionModelo
     }
 
 
-    public function eliminar($id, $id_autor)
+    public function obtenerPorId($id)
     {
-        $this->db->query("DELETE FROM publicaciones WHERE id_publicacion = :id AND id_autor = :id_autor");
+        $this->db->query("SELECT * FROM publicaciones WHERE id_publicacion = :id");
         $this->db->bind(':id', $id);
-        $this->db->bind(':id_autor', $id_autor);
+        return $this->db->registro();
+    }
+
+    public function eliminar($id)
+    {
+        // 1. Obtener nombre de imagen destacada
+        $this->db->query("SELECT imagen_destacada FROM publicaciones WHERE id_publicacion = :id");
+        $this->db->bind(':id', $id);
+        $publicacion = $this->db->registro();
+
+        if ($publicacion && !empty($publicacion->imagen_destacada)) {
+            $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $publicacion->imagen_destacada;
+            if (file_exists($ruta)) {
+                unlink($ruta);
+            }
+        }
+
+        // 2. Obtener y eliminar imágenes adicionales
+        $this->db->query("SELECT ruta_imagen FROM imagenes_publicacion WHERE id_publicacion = :id");
+        $this->db->bind(':id', $id);
+        $imagenes = $this->db->registros();
+
+        foreach ($imagenes as $img) {
+            $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $img->ruta_imagen;
+            if (file_exists($ruta)) {
+                unlink($ruta);
+            }
+        }
+
+        // 3. Eliminar registros de imagenes adicionales
+        $this->db->query("DELETE FROM imagenes_publicacion WHERE id_publicacion = :id");
+        $this->db->bind(':id', $id);
+        $this->db->execute();
+
+        // 4. Eliminar publicación
+        $this->db->query("DELETE FROM publicaciones WHERE id_publicacion = :id");
+        $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+
+    public function actualizar($datos)
+    {
+        $sql = "UPDATE publicaciones 
+                SET titulo = :titulo, 
+                    contenido = :contenido, 
+                    tipo = :tipo, 
+                    id_departamento = :id_departamento, 
+                    imagen_destacada = :imagen_destacada
+                WHERE id_publicacion = :id_publicacion";
+
+        $this->db->query($sql);
+        $this->db->bind(':titulo', $datos['titulo']);
+        $this->db->bind(':contenido', $datos['contenido']);
+        $this->db->bind(':tipo', $datos['tipo']);
+        $this->db->bind(':id_departamento', $datos['id_departamento']);
+        $this->db->bind(':imagen_destacada', $datos['imagen_destacada']);
+        $this->db->bind(':id_publicacion', $datos['id_publicacion']);
+
+        return $this->db->execute();
+    }
+
+
+
 }

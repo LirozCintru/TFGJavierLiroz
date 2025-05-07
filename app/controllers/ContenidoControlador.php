@@ -1,6 +1,6 @@
 <?php
-require_once RUTA_APP . '/librerias/ControladorProtegido.php';
-
+require(RUTA_APP . '/librerias/Funciones.php');
+require_once RUTA_APP . '/config/roles.php';
 class ContenidoControlador extends Controlador
 {
     private $modelo;
@@ -12,12 +12,13 @@ class ContenidoControlador extends Controlador
 
     public function inicio()
     {
+
         verificarSesionActiva();
 
-        $modelo = $this->modelo('PublicacionModelo');
-        $publicaciones = $modelo->obtenerTodas($_SESSION['usuario']);
+        $publicaciones = $this->modelo->obtenerTodas($_SESSION['usuario']);
 
         $this->vista('contenido/inicio', ['publicaciones' => $publicaciones]);
     }
+
 
 }

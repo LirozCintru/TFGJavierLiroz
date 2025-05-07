@@ -1,11 +1,14 @@
-<?php require RUTA_APP . '/views/inc/headerMain.php'; 
+<?php require RUTA_APP . '/views/inc/headerMain.php';
 // echo '<pre>';
 // print_r($_SESSION['usuario']);
 // echo '</pre>';
 // exit;
 ?>
 
-
+<?php
+$publicaciones = $datos['publicaciones'] ?? [];
+// Esto hace que $publicacion->campo sea visible en el include
+?>
 
 <?php
 $fotoPerfil = $_SESSION['usuario']['imagen'] ?? 'default.png';
@@ -57,7 +60,8 @@ $rutaFoto = RUTA_URL . '/public/img/usuarios/' . $fotoPerfil;
                     </select>
                 </div>
                 <div class="col-md-8">
-                    <input type="text" id="buscador" class="form-control" placeholder="Buscar por título o contenido...">
+                    <input type="text" id="buscador" class="form-control"
+                        placeholder="Buscar por título o contenido...">
                 </div>
             </div>
 

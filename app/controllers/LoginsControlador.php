@@ -14,7 +14,7 @@ class LoginsControlador extends Controlador
     {
         session_start();
         if (isset($_SESSION['usuario'])) {
-            header("Location: " . RUTA_URL . "/contenido/inicio");
+            header("Location: " . RUTA_URL . "/ContenidoControlador/inicio");
             exit;
         }
 
@@ -24,7 +24,7 @@ class LoginsControlador extends Controlador
     public function inicio()
     {
         verificarSesionActiva();
-        $this->vista('contenido/inicio');
+        $this->vista('ContenidoControlador/inicio');
     }
 
     public function acceder()
@@ -77,7 +77,7 @@ class LoginsControlador extends Controlador
                     //     header("Location: " . RUTA_URL . "/contenido/inicio");
                     // }
 
-                    header("Location: " . RUTA_URL . "/contenido/inicio");
+                    header("Location: " . RUTA_URL . "/ContenidoControlador/inicio");
                     exit;
                 } else {
                     $datos['errorUnique'] = "Usuario o contraseña incorrectos.";
