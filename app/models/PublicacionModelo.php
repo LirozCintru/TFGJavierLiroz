@@ -146,6 +146,22 @@ class PublicacionModelo
         return $this->db->execute();
     }
 
+    public function eliminarImagenAdicional($idPublicacion, $rutaImagen)
+    {
+        // Eliminar físicamente la imagen del servidor
+        $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $rutaImagen;
+        if (file_exists($ruta)) {
+            unlink($ruta);
+        }
+
+        // Eliminar el registro de la base de datos
+        $this->db->query("DELETE FROM imagenes_publicacion 
+                      WHERE id_publicacion = :id AND ruta_imagen = :ruta");
+        $this->db->bind(':id', $idPublicacion);
+        $this->db->bind(':ruta', $rutaImagen);
+        return $this->db->execute();
+    }
+
 
 
 }
