@@ -22,11 +22,10 @@ class LoginsControlador extends Controlador
     }
 
     public function inicio()
-{
-    verificarSesionActiva();
-    $this->vista('contenido/inicio');
-}
-
+    {
+        verificarSesionActiva();
+        $this->vista('contenido/inicio');
+    }
 
     public function acceder()
     {
@@ -66,7 +65,9 @@ class LoginsControlador extends Controlador
                         'nombre' => $usuario->nombre,
                         'email' => $usuario->email,
                         'id_rol' => $usuario->id_rol,
-                        'nombre_rol' => $usuario->nombre_rol
+                        'nombre_rol' => $usuario->nombre_rol,
+                        'id_departamento' => $usuario->id_departamento,
+                        'imagen' => $usuario->imagen ?? 'default.png'
                     ];
 
                     // Redirigir según rol (si quieres diferenciar dashboards)

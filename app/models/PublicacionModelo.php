@@ -10,34 +10,60 @@ class PublicacionModelo
 
     public function obtenerTodas($usuario)
     {
-        $this->db->query("
-            SELECT p.*, u.nombre AS autor
+        $sql = "
+            SELECT p.*, u.nombre AS autor, d.nombre AS nombre_departamento
             FROM publicaciones p
             JOIN usuarios u ON p.id_autor = u.id_usuario
-            WHERE p.tipo = 'General'
-               OR p.tipo = 'Urgente'
-               OR (p.tipo = 'Departamental' AND p.id_departamento = :id_departamento)
-            ORDER BY p.fecha DESC
-        ");
-        $this->db->bind(':id_departamento', $usuario['id_departamento']);
+            LEFT JOIN departamentos d ON p.id_departamento = d.id_departamento
+            WHERE p.tipo IN ('General', 'Urgente')
+        ";
+
+        if ($usuario['id_rol'] != 1 && !empty($usuario['id_departamento'])) {
+            // Si NO es administrador, filtra también por su departamento
+            $sql .= " OR (p.tipo = 'Departamental' AND p.id_departamento = :id_departamento)";
+            $this->db->query($sql);
+            $this->db->bind(':id_departamento', $usuario['id_departamento']);
+        } else {
+            // Admin ve todo sin filtro
+            $sql .= " OR p.tipo = 'Departamental'";
+            $this->db->query($sql);
+        }
+
         return $this->db->registros();
     }
 
+
+
     public function crear($datos)
     {
-        $this->db->query("INSERT INTO publicaciones (titulo, contenido, tipo, id_autor, id_departamento)
-                          VALUES (:titulo, :contenido, :tipo, :id_autor, :id_departamento)");
+        $this->db->query("INSERT INTO publicaciones 
+        (titulo, contenido, tipo, id_autor, id_departamento, imagen_destacada)
+        VALUES (:titulo, :contenido, :tipo, :id_autor, :id_departamento, :imagen_destacada)");
+
         $this->db->bind(':titulo', $datos['titulo']);
         $this->db->bind(':contenido', $datos['contenido']);
         $this->db->bind(':tipo', $datos['tipo']);
         $this->db->bind(':id_autor', $datos['id_autor']);
         $this->db->bind(':id_departamento', $datos['id_departamento']);
-        return $this->db->execute();
-    }
+        $this->db->bind(':imagen_destacada', $datos['imagen_destacada']);
+        $this->db->execute();
 
-    public function ultimoIdInsertado()
-    {
-        return $this->db->ultimoId(); // Método típico en tu clase DataBase
+        // Obtener el último ID insertado por el autor
+        $this->db->query("SELECT id_publicacion FROM publicaciones 
+                      WHERE id_autor = :id_autor AND titulo = :titulo 
+                      ORDER BY id_publicacion DESC LIMIT 1");
+        $this->db->bind(':id_autor', $datos['id_autor']);
+        $this->db->bind(':titulo', $datos['titulo']);
+        $row = $this->db->registro();
+
+        return $row ? $row->id_publicacion : null;
+
+        // if ($row) {
+        //     return $row->id_publicacion;
+        // } else {
+        //     return null;
+        // }
+
     }
 
     public function guardarImagenPublicacion($idPublicacion, $nombreArchivo)
@@ -50,11 +76,11 @@ class PublicacionModelo
     }
 
     public function obtenerImagenesPublicacion($idPublicacion)
-{
-    $this->db->query("SELECT ruta_imagen FROM imagenes_publicacion WHERE id_publicacion = :id");
-    $this->db->bind(':id', $idPublicacion);
-    return $this->db->registros();
-}
+    {
+        $this->db->query("SELECT ruta_imagen FROM imagenes_publicacion WHERE id_publicacion = :id");
+        $this->db->bind(':id', $idPublicacion);
+        return $this->db->registros();
+    }
 
 
     public function eliminar($id, $id_autor)

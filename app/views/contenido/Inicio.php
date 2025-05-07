@@ -1,4 +1,11 @@
-<?php require RUTA_APP . '/views/inc/headerMain.php'; ?>
+<?php require RUTA_APP . '/views/inc/headerMain.php'; 
+// echo '<pre>';
+// print_r($_SESSION['usuario']);
+// echo '</pre>';
+// exit;
+?>
+
+
 
 <?php
 $fotoPerfil = $_SESSION['usuario']['imagen'] ?? 'default.png';
@@ -56,7 +63,7 @@ $rutaFoto = RUTA_URL . '/public/img/usuarios/' . $fotoPerfil;
 
             <!-- Contenedor de publicaciones -->
             <div id="contenedorPublicaciones">
-                <!-- <?php require RUTA_APP . '/views/publicaciones/index.php'; ?> -->
+                <?php require RUTA_APP . '/views/publicaciones/index.php'; ?>
             </div>
         </div>
     </div>

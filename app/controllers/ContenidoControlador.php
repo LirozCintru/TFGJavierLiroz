@@ -12,12 +12,12 @@ class ContenidoControlador extends Controlador
 
     public function inicio()
     {
-        // Obtener publicaciones visibles para el usuario actual
-        $publicaciones = $this->modelo->obtenerTodas($_SESSION['usuario']);
+        verificarSesionActiva();
 
-        // Cargar la vista principal pasando las publicaciones
-        $this->vista('contenido/Inicio', [
-            'publicaciones' => $publicaciones
-        ]);
+        $modelo = $this->modelo('PublicacionModelo');
+        $publicaciones = $modelo->obtenerTodas($_SESSION['usuario']);
+
+        $this->vista('contenido/inicio', ['publicaciones' => $publicaciones]);
     }
+
 }

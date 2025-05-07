@@ -3,8 +3,8 @@
         <div class="card mb-4 shadow-sm">
             <!-- Imagen destacada -->
             <?php if (!empty($publicacion->imagen_destacada)): ?>
-                <img src="<?php echo RUTA_URL . '/public/img/publicaciones/' . $publicacion->imagen_destacada; ?>" 
-                     class="card-img-top" alt="Imagen destacada">
+                <img src="<?php echo RUTA_URL . '/public/img/publicaciones/' . $publicacion->imagen_destacada; ?>"
+                    class="card-img-top" alt="Imagen destacada">
             <?php endif; ?>
 
             <div class="card-body">
@@ -19,26 +19,41 @@
                     </small>
                 </p>
 
+                <!-- Mostrar departamento si es departamental -->
+                <?php if ($publicacion->tipo === 'Departamental' && !empty($publicacion->nombre_departamento)): ?>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Departamento: <?php echo htmlspecialchars($publicacion->nombre_departamento); ?>
+                        </small>
+                    </p>
+                <?php endif; ?>
+
                 <!-- Imágenes adicionales -->
                 <?php
                 $modelo = new \PublicacionModelo(); // instanciar modelo directamente
                 $imagenesAdicionales = $modelo->obtenerImagenesPublicacion($publicacion->id_publicacion);
                 if (!empty($imagenesAdicionales)):
-                ?>
+                    ?>
                     <div class="mt-3 d-flex flex-wrap gap-2">
                         <?php foreach ($imagenesAdicionales as $img): ?>
-                            <img src="<?php echo RUTA_URL . '/public/img/publicaciones/' . $img->ruta_imagen; ?>"
-                                 class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;"
-                                 alt="Imagen adicional">
+                            <img src="<?php echo RUTA_URL . '/public/img/publicaciones/' . $img->ruta_imagen; ?>" class="img-thumbnail"
+                                style="width: 120px; height: 120px; object-fit: cover;" alt="Imagen adicional">
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
 
-                <!-- Botones si es el autor -->
-                <?php if ($_SESSION['usuario']['id'] == $publicacion->id_autor): ?>
+                <!-- Botones solo si es autor y además Admin o Jefe -->
+                <?php
+                $usuario = $_SESSION['usuario'];
+                if (
+                    $usuario['id'] == $publicacion->id_autor &&
+                    in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])
+                ): ?>
                     <div class="mt-3">
-                        <a href="<?php echo RUTA_URL . '/publicaciones/editar/' . $publicacion->id_publicacion; ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                        <a href="<?php echo RUTA_URL . '/publicaciones/eliminar/' . $publicacion->id_publicacion; ?>" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        <a href="<?php echo RUTA_URL . '/publicaciones/editar/' . $publicacion->id_publicacion; ?>"
+                            class="btn btn-sm btn-outline-primary">Editar</a>
+                        <a href="<?php echo RUTA_URL . '/publicaciones/eliminar/' . $publicacion->id_publicacion; ?>"
+                            class="btn btn-sm btn-outline-danger">Eliminar</a>
                     </div>
                 <?php endif; ?>
             </div>

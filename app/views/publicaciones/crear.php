@@ -3,7 +3,7 @@
 <div class="container mt-4">
     <h3 class="mb-4">Nueva Publicación</h3>
 
-    <form action="<?php echo RUTA_URL; ?>/publicaciones/crear" method="POST" enctype="multipart/form-data">
+    <form action="<?php echo RUTA_URL; ?>/PublicacionesControlador/crear" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="titulo" class="form-label">Título</label>
             <input type="text" class="form-control" id="titulo" name="titulo" required>
