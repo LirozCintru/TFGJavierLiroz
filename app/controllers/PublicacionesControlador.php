@@ -1,5 +1,6 @@
 <?php
 require_once RUTA_APP . '/librerias/Funciones.php';
+require_once RUTA_APP . '/config/roles.php';
 
 class PublicacionesControlador extends Controlador
 {
@@ -14,47 +15,21 @@ class PublicacionesControlador extends Controlador
     {
         verificarSesionActiva();
         $publicaciones = $this->modelo->obtenerTodas($_SESSION['usuario']);
-        print_r($publicaciones);
-
         $this->vista('publicaciones/index', ['publicaciones' => $publicaciones]);
     }
+
     public function crear()
     {
-        require_once RUTA_APP . '/librerias/Funciones.php';
         verificarSesionActiva();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $titulo = trim($_POST['titulo']);
-            $contenido = trim($_POST['contenido']);
-            $tipo = $_POST['tipo'];
-            $id_autor = $_SESSION['usuario']['id'];
-            $id_departamento = $_SESSION['usuario']['id_departamento'];
-
-            // Validación de extensiones permitidas
-            $extensiones_validas = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-            // Procesar imagen destacada
-            $imagen_destacada = null;
-            if (!empty($_FILES['imagen_destacada']['name'])) {
-                $extension = strtolower(pathinfo($_FILES['imagen_destacada']['name'], PATHINFO_EXTENSION));
-                if (in_array($extension, $extensiones_validas)) {
-                    $nombreImg = 'pub_' . date('YmdHis') . '_' . bin2hex(random_bytes(6)) . '.' . $extension;
-                    $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $nombreImg;
-
-                    if (move_uploaded_file($_FILES['imagen_destacada']['tmp_name'], $ruta)) {
-                        $imagen_destacada = $nombreImg;
-                    }
-                }
-            }
-
-            // Insertar publicación
             $datos = [
-                'titulo' => $titulo,
-                'contenido' => $contenido,
-                'tipo' => $tipo,
-                'id_autor' => $id_autor,
-                'id_departamento' => $id_departamento,
-                'imagen_destacada' => $imagen_destacada
+                'titulo' => trim($_POST['titulo']),
+                'contenido' => trim($_POST['contenido']),
+                'tipo' => $_POST['tipo'],
+                'id_autor' => $_SESSION['usuario']['id'],
+                'id_departamento' => $_SESSION['usuario']['id_departamento'],
+                'imagen_destacada' => $this->procesarImagen('imagen_destacada', 'pub_')
             ];
 
             $id_publicacion = $this->modelo->crear($datos);
@@ -65,47 +40,23 @@ class PublicacionesControlador extends Controlador
                 exit;
             }
 
-            // Procesar imágenes adicionales
-            if (!empty($_FILES['imagenes']['name'][0])) {
-                foreach ($_FILES['imagenes']['tmp_name'] as $i => $tmp) {
-                    if (!empty($_FILES['imagenes']['name'][$i])) {
-                        $extension = strtolower(pathinfo($_FILES['imagenes']['name'][$i], PATHINFO_EXTENSION));
-
-                        if (in_array($extension, $extensiones_validas)) {
-                            $nombreArchivo = 'pubimg_' . date('YmdHis') . '_' . bin2hex(random_bytes(6)) . '.' . $extension;
-                            $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $nombreArchivo;
-
-                            if (move_uploaded_file($tmp, $ruta)) {
-                                $this->modelo->guardarImagenPublicacion($id_publicacion, $nombreArchivo);
-                            }
-                        }
-                    }
-                }
-            }
-
+            $this->procesarImagenesAdicionales($id_publicacion);
+            $_SESSION['mensajeExito'] = 'Publicación creada correctamente.';
             header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
         } else {
             $this->vista('publicaciones/crear');
         }
     }
+
     public function eliminar($id)
     {
         verificarSesionActiva();
-        require_once RUTA_APP . '/config/roles.php';
-
         $usuario = $_SESSION['usuario'];
-
-        // Obtener la publicación
         $publicacion = $this->modelo->obtenerPorId($id);
 
         if (!$publicacion) {
             $_SESSION['errorPublicacion'] = 'La publicación no existe.';
-            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
-            exit;
-        }
-
-        // Solo puede eliminar si es admin o jefe Y es el autor
-        if (
+        } elseif (
             in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE]) &&
             $usuario['id'] == $publicacion->id_autor
         ) {
@@ -129,73 +80,41 @@ class PublicacionesControlador extends Controlador
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $titulo = trim($_POST['titulo']);
-            $contenido = trim($_POST['contenido']);
-            $tipo = $_POST['tipo'];
-            $id_departamento = $_SESSION['usuario']['id_departamento'];
-
             $imagen_destacada = $publicacion->imagen_destacada;
 
-            if (isset($_POST['eliminar_imagen']) && $imagen_destacada) {
-                $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $imagen_destacada;
-                if (file_exists($ruta)) {
-                    unlink($ruta);
-                }
+            // Marcar para eliminar
+            $eliminarDestacada = isset($_POST['eliminar_imagen']) && $imagen_destacada;
+
+            if ($eliminarDestacada) {
+                $this->eliminarImagenFisica($imagen_destacada);
                 $imagen_destacada = null;
             }
 
-            if (!empty($_FILES['imagen_destacada']['name'])) {
-                $extension = strtolower(pathinfo($_FILES['imagen_destacada']['name'], PATHINFO_EXTENSION));
-                $permitidas = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                if (in_array($extension, $permitidas)) {
-                    $nombreNuevo = 'pub_' . date('YmdHis') . '_' . bin2hex(random_bytes(5)) . '.' . $extension;
-                    $rutaNueva = RUTA_PUBLIC . '/img/publicaciones/' . $nombreNuevo;
-                    if (move_uploaded_file($_FILES['imagen_destacada']['tmp_name'], $rutaNueva)) {
-                        if ($imagen_destacada) {
-                            $rutaAntigua = RUTA_PUBLIC . '/img/publicaciones/' . $imagen_destacada;
-                            if (file_exists($rutaAntigua)) {
-                                unlink($rutaAntigua);
-                            }
-                        }
-                        $imagen_destacada = $nombreNuevo;
-                    }
+            $nuevaImagen = $this->procesarImagen('imagen_destacada', 'pub_');
+            if ($nuevaImagen) {
+                if ($imagen_destacada && !$eliminarDestacada) {
+                    $this->eliminarImagenFisica($imagen_destacada);
                 }
+                $imagen_destacada = $nuevaImagen;
             }
 
             $this->modelo->actualizar([
                 'id_publicacion' => $id,
-                'titulo' => $titulo,
-                'contenido' => $contenido,
-                'tipo' => $tipo,
-                'id_departamento' => $id_departamento,
+                'titulo' => trim($_POST['titulo']),
+                'contenido' => trim($_POST['contenido']),
+                'tipo' => $_POST['tipo'],
+                'id_departamento' => $_SESSION['usuario']['id_departamento'],
                 'imagen_destacada' => $imagen_destacada
             ]);
 
-            // Eliminar imágenes adicionales marcadas
             if (!empty($_POST['eliminar_imagenes'])) {
                 foreach ($_POST['eliminar_imagenes'] as $rutaImg) {
                     $this->modelo->eliminarImagenAdicional($id, $rutaImg);
                 }
             }
 
-            // Guardar nuevas imágenes adicionales
-            if (!empty($_FILES['imagenes']['name'][0])) {
-                foreach ($_FILES['imagenes']['tmp_name'] as $i => $tmp) {
-                    $nombreOriginal = $_FILES['imagenes']['name'][$i];
-                    $extension = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
-                    $permitidas = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-                    if (in_array($extension, $permitidas)) {
-                        $nombreFinal = 'pubimg_' . date('YmdHis') . '_' . bin2hex(random_bytes(5)) . '.' . $extension;
-                        $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $nombreFinal;
-
-                        if (move_uploaded_file($tmp, $ruta)) {
-                            $this->modelo->guardarImagenPublicacion($id, $nombreFinal);
-                        }
-                    }
-                }
-            }
-
+            $this->procesarImagenesAdicionales($id);
+            $_SESSION['mensajeExito'] = 'Publicación actualizada correctamente.';
             header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
             exit;
         } else {
@@ -207,8 +126,56 @@ class PublicacionesControlador extends Controlador
         }
     }
 
+    // ==============================
+    // FUNCIONES AUXILIARES PRIVADAS
+    // ==============================
 
+    private function extensionesPermitidas()
+    {
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    }
 
+    private function procesarImagen($inputName, $prefijo)
+    {
+        if (!empty($_FILES[$inputName]['name'])) {
+            $extension = strtolower(pathinfo($_FILES[$inputName]['name'], PATHINFO_EXTENSION));
 
+            if (in_array($extension, $this->extensionesPermitidas())) {
+                $nombre = $prefijo . date('YmdHis') . '_' . bin2hex(random_bytes(5)) . '.' . $extension;
+                $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $nombre;
 
+                if (move_uploaded_file($_FILES[$inputName]['tmp_name'], $ruta)) {
+                    return $nombre;
+                }
+            }
+        }
+        return null;
+    }
+
+    private function procesarImagenesAdicionales($id_publicacion)
+    {
+        if (!empty($_FILES['imagenes']['name'][0])) {
+            foreach ($_FILES['imagenes']['tmp_name'] as $i => $tmp) {
+                $nombreOriginal = $_FILES['imagenes']['name'][$i];
+                $extension = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
+
+                if (in_array($extension, $this->extensionesPermitidas())) {
+                    $nombreFinal = 'pubimg_' . date('YmdHis') . '_' . bin2hex(random_bytes(5)) . '.' . $extension;
+                    $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $nombreFinal;
+
+                    if (move_uploaded_file($tmp, $ruta)) {
+                        $this->modelo->guardarImagenPublicacion($id_publicacion, $nombreFinal);
+                    }
+                }
+            }
+        }
+    }
+
+    private function eliminarImagenFisica($nombreArchivo)
+    {
+        $ruta = RUTA_PUBLIC . '/img/publicaciones/' . $nombreArchivo;
+        if (file_exists($ruta)) {
+            unlink($ruta);
+        }
+    }
 }
