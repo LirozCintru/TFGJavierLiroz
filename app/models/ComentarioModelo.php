@@ -50,4 +50,22 @@ class ComentarioModelo
         $this->db->bind(':id', $id_publicacion);
         return $this->db->registro()->total ?? 0;
     }
+
+    public function obtenerUltimo($id_usuario, $id_publicacion)
+    {
+        $this->db->query("
+        SELECT c.*, u.nombre, u.imagen
+        FROM comentarios c
+        JOIN usuarios u ON c.id_usuario = u.id_usuario
+        WHERE c.id_usuario = :usuario AND c.id_publicacion = :publicacion
+        ORDER BY c.fecha DESC
+        LIMIT 1
+    ");
+        $this->db->bind(':usuario', $id_usuario);
+        $this->db->bind(':publicacion', $id_publicacion);
+        return $this->db->registro();
+    }
+
+    
+
 }

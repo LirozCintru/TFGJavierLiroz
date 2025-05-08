@@ -198,24 +198,32 @@ class PublicacionesControlador extends Controlador
                 ]);
             }
 
-            // Redirige de vuelta a la publicación
-            // Guardar ID de la publicación comentada para expandirla después
-            $_SESSION['expandir_publicacion'] = $id_publicacion;
+            // ✅ Si es AJAX, devolver solo el HTML del comentario
+            if (
+                !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+            ) {
+                $comentario = $this->comentarioModelo->obtenerUltimo($_SESSION['usuario']['id'], $id_publicacion);
 
-            // Reconstruir la URL con filtros activos
-            $query = http_build_query([
-                'tipo' => $_GET['tipo'] ?? '',
-                'departamento' => $_GET['departamento'] ?? '',
-                'busqueda' => $_GET['busqueda'] ?? '',
-                'pagina' => $_GET['pagina'] ?? '',
-                'limite' => $_GET['limite'] ?? ''
-            ]);
+                if ($comentario) {
+                    ob_start();
+                    require RUTA_APP . '/views/publicaciones/_comentario.php';
+                    $html = ob_get_clean();
+                    echo $html;
+                    exit;
+                }
 
-            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio?' . $query . '#pub-' . $id_publicacion);
+                http_response_code(204); // Sin contenido
+                exit;
+            }
+
+            // Si NO es AJAX, redirigir como antes
+            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio#pub-' . $id_publicacion);
             exit;
-
         }
     }
+
+
 
     public function eliminarComentario($id_comentario)
     {
@@ -224,9 +232,23 @@ class PublicacionesControlador extends Controlador
         $usuario_id = $_SESSION['usuario']['id'];
         $this->comentarioModelo->eliminar($id_comentario, $usuario_id);
 
+        // Si es petición AJAX (JavaScript Fetch)
+        if (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+        ) {
+            // Enviar código 200 y terminar
+            http_response_code(200);
+            echo 'OK';
+            exit;
+        }
+
+        // Si no es AJAX, redirigir normalmente
         header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
     }
+
+
 
 
 

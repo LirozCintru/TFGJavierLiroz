@@ -46,7 +46,6 @@
                     </small>
                 </div>
 
-                <!-- Contenido expandido -->
                 <div id="detalle-<?= $publicacion->id_publicacion ?>"
                     class="expandible mt-3 <?= isset($expandir_publicacion) && $expandir_publicacion == $publicacion->id_publicacion ? 'mostrar' : '' ?>">
                     <hr>
@@ -67,35 +66,21 @@
 
                     <!-- Comentarios -->
                     <div class="comentarios">
-                        <h6>Comentarios (<?= $contador ?>)</h6>
+                        <h6>Comentarios (<span class="contador-comentarios"><?= $contador ?></span>)</h6>
 
-                        <?php if (!empty($comentarios)): ?>
-                            <?php foreach ($comentarios as $comentario): ?>
-                                <div class="d-flex align-items-start mb-2">
-                                    <img src="<?= RUTA_URL . '/public/img/usuarios/' . ($comentario->imagen ?? 'default.png') ?>"
-                                        class="rounded-circle me-2" width="40" height="40" alt="img">
-                                    <div class="bg-light rounded p-2 w-100">
-                                        <strong><?= htmlspecialchars($comentario->nombre) ?></strong>
-                                        <small class="text-muted ms-2"><?= date('d/m/Y H:i', strtotime($comentario->fecha)) ?></small>
-                                        <p class="mb-1"><?= nl2br(htmlspecialchars($comentario->contenido)) ?></p>
+                        <div class="comentarios-lista">
+                            <?php if (!empty($comentarios)): ?>
+                                <?php foreach ($comentarios as $comentario): ?>
+                                    <?php require RUTA_APP . '/views/publicaciones/_comentario.php'; ?>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">No hay comentarios.</p>
+                            <?php endif; ?>
+                        </div>
 
-                                        <?php if ($_SESSION['usuario']['id'] == $comentario->id_usuario): ?>
-                                            <form
-                                                action="<?= RUTA_URL ?>/PublicacionesControlador/eliminarComentario/<?= $comentario->id_comentario ?>"
-                                                method="POST" class="d-inline">
-                                                <button class="btn btn-sm btn-link text-danger p-0"
-                                                    onclick="return confirm('¿Eliminar comentario?')">Eliminar</button>
-                                            </form>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-muted">No hay comentarios.</p>
-                        <?php endif; ?>
-
-                        <form method="POST"
-                            action="<?= RUTA_URL ?>/PublicacionesControlador/comentar/<?= $publicacion->id_publicacion ?>">
+                        <form class="form-comentario" data-id="<?= $publicacion->id_publicacion ?>"
+                            action="<?= RUTA_URL ?>/PublicacionesControlador/comentar/<?= $publicacion->id_publicacion ?>"
+                            method="POST">
                             <div class="input-group mt-2">
                                 <input type="text" name="contenido" class="form-control" placeholder="Escribe un comentario..."
                                     required>
@@ -106,10 +91,7 @@
 
                     <?php
                     $usuario = $_SESSION['usuario'];
-                    if (
-                        $usuario['id'] == $publicacion->id_autor &&
-                        in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])
-                    ): ?>
+                    if ($usuario['id'] == $publicacion->id_autor && in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])): ?>
                         <div class="mt-3">
                             <a href="<?= RUTA_URL . '/PublicacionesControlador/editar/' . $publicacion->id_publicacion ?>"
                                 class="btn btn-sm btn-outline-primary">Editar</a>
