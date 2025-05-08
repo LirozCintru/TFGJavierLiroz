@@ -5,11 +5,15 @@ require_once RUTA_APP . '/config/roles.php';
 class PublicacionesControlador extends Controlador
 {
     private $modelo;
+    private $comentarioModelo;
+
 
     public function __construct()
     {
         $this->modelo = $this->modelo('PublicacionModelo');
+        $this->comentarioModelo = $this->modelo('ComentarioModelo');
     }
+
 
     public function index()
     {
@@ -178,4 +182,52 @@ class PublicacionesControlador extends Controlador
             unlink($ruta);
         }
     }
+
+    public function comentar($id_publicacion)
+    {
+        verificarSesionActiva();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $contenido = trim($_POST['contenido']);
+
+            if (!empty($contenido)) {
+                $this->comentarioModelo->insertar([
+                    'contenido' => $contenido,
+                    'id_usuario' => $_SESSION['usuario']['id'],
+                    'id_publicacion' => $id_publicacion
+                ]);
+            }
+
+            // Redirige de vuelta a la publicación
+            // Guardar ID de la publicación comentada para expandirla después
+            $_SESSION['expandir_publicacion'] = $id_publicacion;
+
+            // Reconstruir la URL con filtros activos
+            $query = http_build_query([
+                'tipo' => $_GET['tipo'] ?? '',
+                'departamento' => $_GET['departamento'] ?? '',
+                'busqueda' => $_GET['busqueda'] ?? '',
+                'pagina' => $_GET['pagina'] ?? '',
+                'limite' => $_GET['limite'] ?? ''
+            ]);
+
+            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio?' . $query . '#pub-' . $id_publicacion);
+            exit;
+
+        }
+    }
+
+    public function eliminarComentario($id_comentario)
+    {
+        verificarSesionActiva();
+
+        $usuario_id = $_SESSION['usuario']['id'];
+        $this->comentarioModelo->eliminar($id_comentario, $usuario_id);
+
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+
+
+
 }

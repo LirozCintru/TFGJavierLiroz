@@ -20,33 +20,47 @@ class ContenidoControlador extends Controlador
         $busqueda = $_GET['busqueda'] ?? '';
         $id_departamento = $_GET['departamento'] ?? '';
 
-        // Si no es admin, solo puede ver su departamento
+        // Si no es admin, limitar el filtro al departamento propio
         if ($usuario['id_rol'] != ROL_ADMIN) {
             $id_departamento = $usuario['id_departamento'];
         }
 
-        // ✅ Manejar límite por página
-        if (isset($_GET['limite'])) {
+        // Límite de publicaciones por página
+        if (isset($_GET['limite']) && (int) $_GET['limite'] > 0) {
             $_SESSION['limite_publicaciones'] = (int) $_GET['limite'];
         }
         $limite = $_SESSION['limite_publicaciones'] ?? 10;
+        if ($limite <= 0) {
+            $limite = 10;
+        }
 
-        // ✅ Página actual
-        $pagina = max(1, (int) ($_GET['pagina'] ?? 1));
+        // Página actual
+        $pagina = isset($_GET['pagina']) && (int) $_GET['pagina'] > 0 ? (int) $_GET['pagina'] : 1;
         $offset = ($pagina - 1) * $limite;
 
-        // ✅ Total de publicaciones filtradas
+        // Total de publicaciones filtradas
         $total = $this->modelo->contarFiltradas($usuario, $tipo, $busqueda, $id_departamento);
         $total_paginas = max(1, ceil($total / $limite));
 
-        // ✅ Obtener publicaciones
+        // Publicaciones paginadas
         $publicaciones = $this->modelo->obtenerPaginadas($usuario, $tipo, $busqueda, $id_departamento, $limite, $offset);
 
-        // Cargar departamentos (solo admin)
+        // Añadir comentarios a cada publicación
+        $comentarioModelo = $this->modelo('ComentarioModelo');
+        foreach ($publicaciones as $p) {
+            $p->comentarios = $comentarioModelo->obtenerPorPublicacion($p->id_publicacion);
+        }
+
+        // Departamentos (solo para admin)
         $departamentos = $usuario['id_rol'] == ROL_ADMIN
             ? $this->modelo('DepartamentoModelo')->obtenerTodos()
             : [];
 
+        // ID de publicación a expandir (tras comentar)
+        $expandirId = $_SESSION['expandir_publicacion'] ?? null;
+        unset($_SESSION['expandir_publicacion']);
+
+        // Vista
         $this->vista('contenido/inicio', [
             'publicaciones' => $publicaciones,
             'departamentos' => $departamentos,
@@ -55,25 +69,8 @@ class ContenidoControlador extends Controlador
             'filtro_departamento' => $id_departamento,
             'pagina' => $pagina,
             'total_paginas' => $total_paginas,
-            'limite' => $limite
+            'limite' => $limite,
+            'expandir_publicacion' => $expandirId
         ]);
     }
-
 }
-// public function inicio()
-// {
-//     verificarSesionActiva();
-
-//     try {
-//         $usuario = $_SESSION['usuario'];
-//         $publicaciones = $this->modelo->obtenerTodas($usuario);
-
-//         $this->vista('contenido/inicio', [
-//             'publicaciones' => $publicaciones
-//         ]);
-//     } catch (Exception $e) {
-//         // Si ocurre un error inesperado en la carga
-//         $_SESSION['errorGeneral'] = 'Error al cargar publicaciones.';
-//         $this->vista('contenido/inicio', ['publicaciones' => []]);
-//     }
-// }

@@ -34,7 +34,7 @@
         </div>
 
         <button type="submit" class="btn btn-success">Publicar</button>
-        <a href="<?php echo RUTA_URL; ?>/contenido/inicio" class="btn btn-secondary">Cancelar</a>
+        <a href="<?php echo RUTA_URL; ?>/contenidoContro/inicio" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 
