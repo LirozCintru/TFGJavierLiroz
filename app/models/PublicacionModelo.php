@@ -65,10 +65,10 @@ class PublicacionModelo
             $sql .= " AND p.id_departamento = :filtro_departamento";
         }
 
-        // ⚠️ Aquí se hace query DESPUÉS de armar el SQL completo
+       
         $this->db->query($sql);
 
-        // Binds
+        //
         if ($usuario['id_rol'] != ROL_ADMIN) {
             $this->db->bind(':id_departamento', $id_departamento);
         }

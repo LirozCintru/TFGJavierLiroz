@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 📌 Expansión de publicación
+  // Expansión de publicación
   document.querySelectorAll(".toggle-detalle").forEach((titulo) => {
     titulo.addEventListener("click", () => {
       const id = titulo.dataset.target;
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 💬 Enviar comentario sin recargar
+  // Enviar comentario sin recargar
   document.querySelectorAll(".form-comentario").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "X-Requested-With": "XMLHttpRequest", // ← CABECERA CLAVE
+            "X-Requested-With": "XMLHttpRequest", // 
           },
           body: new URLSearchParams({ contenido }),
         });
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
           lista.insertAdjacentHTML("beforeend", html);
           input.value = "";
 
-          // 🔄 Actualizar contador
+          // Actualizar contador
           const contador = form
             .closest(".comentarios")
             .querySelector(".contador-comentarios");
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 🗑️ Eliminar comentario sin recargar
+  // Eliminar comentario sin recargar
   document.querySelectorAll(".comentarios-lista").forEach((lista) => {
     lista.addEventListener("submit", async (e) => {
       const form = e.target;

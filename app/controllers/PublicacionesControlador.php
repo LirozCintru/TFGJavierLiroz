@@ -45,12 +45,27 @@ class PublicacionesControlador extends Controlador
             }
 
             $this->procesarImagenesAdicionales($id_publicacion);
+
+            // Si hay evento
+            if (!empty($_POST['activar_evento']) && !empty($_POST['evento_titulo']) && !empty($_POST['evento_fecha'])) {
+                $eventoModelo = $this->modelo('EventoModelo');
+                $eventoModelo->crear([
+                    'titulo' => $_POST['evento_titulo'],
+                    'descripcion' => $_POST['evento_descripcion'],
+                    'fecha' => $_POST['evento_fecha'],
+                    'hora' => $_POST['evento_hora'],
+                    'id_departamento' => $_SESSION['usuario']['id_departamento'],
+                    'id_publicacion' => $id_publicacion
+                ]);
+            }
+
             $_SESSION['mensajeExito'] = 'Publicación creada correctamente.';
             header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
         } else {
             $this->vista('publicaciones/crear');
         }
     }
+
 
     public function eliminar($id)
     {

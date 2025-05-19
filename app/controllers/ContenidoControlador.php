@@ -20,6 +20,8 @@ class ContenidoControlador extends Controlador
         $busqueda = $_GET['busqueda'] ?? '';
         $id_departamento = $_GET['departamento'] ?? '';
 
+        
+
         // Si no es admin, limitar el filtro al departamento propio
         if ($usuario['id_rol'] != ROL_ADMIN) {
             $id_departamento = $usuario['id_departamento'];
@@ -45,11 +47,20 @@ class ContenidoControlador extends Controlador
         // Publicaciones paginadas
         $publicaciones = $this->modelo->obtenerPaginadas($usuario, $tipo, $busqueda, $id_departamento, $limite, $offset);
 
+        // echo '<pre>'; print_r($publicaciones); echo '</pre>'; exit;
+
+
         // Añadir comentarios a cada publicación
         $comentarioModelo = $this->modelo('ComentarioModelo');
         foreach ($publicaciones as $p) {
             $p->comentarios = $comentarioModelo->obtenerPorPublicacion($p->id_publicacion);
         }
+
+        $eventoModelo = $this->modelo('EventoModelo');
+        foreach ($publicaciones as $p) {
+            $p->evento = $eventoModelo->obtenerPorPublicacion($p->id_publicacion)[0] ?? null;
+        }
+
 
         // Departamentos (solo para admin)
         $departamentos = $usuario['id_rol'] == ROL_ADMIN

@@ -32,6 +32,9 @@
                     data-target="detalle-<?= $publicacion->id_publicacion ?>">
                     <?= htmlspecialchars($publicacion->titulo) ?>
                     <span class="badge <?= $badgeClass ?> ms-2"><?= $publicacion->tipo ?></span>
+                    <?php if (!empty($publicacion->evento)): ?>
+                        <i class="bi bi-calendar-event-fill text-primary ms-2" title="Tiene evento vinculado"></i>
+                    <?php endif; ?>
                 </h5>
 
                 <p class="card-text text-muted"><?= $resumen ?></p>
@@ -51,6 +54,17 @@
                     <hr>
 
                     <div class="mb-3"><?= $contenidoCompleto ?></div>
+
+                    <?php if (!empty($publicacion->evento)): ?>
+                        <div class="alert alert-info">
+                            <strong>🗓️ Evento vinculado:</strong><br>
+                            <strong><?= htmlspecialchars($publicacion->evento->titulo) ?></strong><br>
+                            <?= nl2br(htmlspecialchars($publicacion->evento->descripcion)) ?><br>
+                            Fecha: <?= date('d/m/Y', strtotime($publicacion->evento->fecha)) ?> -
+                            Hora: <?= substr($publicacion->evento->hora, 0, 5) ?>
+
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Imágenes adicionales -->
                     <?php
