@@ -87,6 +87,74 @@ $imagenes_adicionales = $datos['imagenes_adicionales'];
         <!-- Preview de nuevas imágenes seleccionadas -->
         <div class="mb-3" id="previewImagenes" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
 
+        <?php if (!empty($publicacion->evento)): ?>
+            <hr>
+            <h5 class="mb-3">📅 Evento vinculado</h5>
+
+            <div class="mb-3">
+                <label for="evento_titulo" class="form-label">Título del evento</label>
+                <input type="text" class="form-control" id="evento_titulo" name="evento_titulo"
+                    value="<?= htmlspecialchars($publicacion->evento->titulo) ?>">
+            </div>
+
+            <div class="mb-3">
+                <label for="evento_url" class="form-label">URL asociada (opcional)</label>
+                <input type="url" class="form-control" id="evento_url" name="evento_url"
+                    value="<?= htmlspecialchars($publicacion->evento->url) ?>">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="evento_fecha" class="form-label">Fecha de inicio</label>
+                    <input type="date" class="form-control" id="evento_fecha" name="evento_fecha"
+                        value="<?= $publicacion->evento->fecha ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="evento_hora" class="form-label">Hora de inicio</label>
+                    <input type="time" class="form-control" id="evento_hora" name="evento_hora"
+                        value="<?= substr($publicacion->evento->hora, 0, 5) ?>">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="evento_fecha_fin" class="form-label">Fecha de fin (opcional)</label>
+                    <input type="date" class="form-control" id="evento_fecha_fin" name="evento_fecha_fin"
+                        value="<?= $publicacion->evento->fecha_fin ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="evento_hora_fin" class="form-label">Hora de fin (opcional)</label>
+                    <input type="time" class="form-control" id="evento_hora_fin" name="evento_hora_fin"
+                        value="<?= substr($publicacion->evento->hora_fin, 0, 5) ?>">
+                </div>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="evento_todo_el_dia" name="evento_todo_el_dia"
+                    <?= $publicacion->evento->todo_el_dia ? 'checked' : '' ?>>
+                <label class="form-check-label" for="evento_todo_el_dia">Evento de todo el día</label>
+            </div>
+
+            <div class="mb-3">
+                <label for="evento_color" class="form-label">Color del evento</label>
+                <input type="color" class="form-control form-control-color" id="evento_color" name="evento_color"
+                    value="<?= $publicacion->evento->color ?? '#0d6efd' ?>">
+            </div>
+
+            <div class="mb-3">
+                <label for="evento_descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="evento_descripcion" name="evento_descripcion"
+                    rows="3"><?= htmlspecialchars($publicacion->evento->descripcion) ?></textarea>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" id="eliminar_evento" name="eliminar_evento">
+                <label class="form-check-label" for="eliminar_evento">
+                    Eliminar este evento vinculado
+                </label>
+            </div>
+        <?php endif; ?>
+
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         <a href="<?php echo RUTA_URL; ?>/ContenidoControlador/inicio" class="btn btn-secondary">Cancelar</a>
     </form>

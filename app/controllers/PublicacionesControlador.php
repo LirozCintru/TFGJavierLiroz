@@ -50,14 +50,20 @@ class PublicacionesControlador extends Controlador
             if (!empty($_POST['activar_evento']) && !empty($_POST['evento_titulo']) && !empty($_POST['evento_fecha'])) {
                 $eventoModelo = $this->modelo('EventoModelo');
                 $eventoModelo->crear([
-                    'titulo' => $_POST['evento_titulo'],
-                    'descripcion' => $_POST['evento_descripcion'],
+                    'titulo' => trim($_POST['evento_titulo']),
+                    'descripcion' => trim($_POST['evento_descripcion']),
                     'fecha' => $_POST['evento_fecha'],
                     'hora' => $_POST['evento_hora'],
+                    'fecha_fin' => $_POST['evento_fecha_fin'] ?? null,
+                    'hora_fin' => $_POST['evento_hora_fin'] ?? null,
+                    'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
+                    'url' => $_POST['evento_url'] ?? null,
+                    'color' => $_POST['evento_color'] ?? '#0d6efd',
                     'id_departamento' => $_SESSION['usuario']['id_departamento'],
                     'id_publicacion' => $id_publicacion
                 ]);
             }
+
 
             $_SESSION['mensajeExito'] = 'Publicación creada correctamente.';
             header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
@@ -101,9 +107,7 @@ class PublicacionesControlador extends Controlador
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imagen_destacada = $publicacion->imagen_destacada;
 
-            // Marcar para eliminar
             $eliminarDestacada = isset($_POST['eliminar_imagen']) && $imagen_destacada;
-
             if ($eliminarDestacada) {
                 $this->eliminarImagenFisica($imagen_destacada);
                 $imagen_destacada = null;
@@ -133,17 +137,54 @@ class PublicacionesControlador extends Controlador
             }
 
             $this->procesarImagenesAdicionales($id);
+
+            // ================================
+            // BLOQUE PARA EVENTO VINCULADO
+            // ================================
+            $eventoModelo = $this->modelo('EventoModelo');
+            $evento = $eventoModelo->obtenerPorPublicacion($id)[0] ?? null;
+
+            if ($evento) {
+                if (isset($_POST['eliminar_evento'])) {
+                    $eventoModelo->eliminar($evento->id_evento);
+                } else {
+                    $eventoModelo->actualizar([
+                        'id_evento' => $evento->id_evento,
+                        'titulo' => trim($_POST['evento_titulo']),
+                        'descripcion' => trim($_POST['evento_descripcion']),
+                        'fecha' => $_POST['evento_fecha'],
+                        'hora' => $_POST['evento_hora'],
+                        'fecha_fin' => $_POST['evento_fecha_fin'] ?? null,
+                        'hora_fin' => $_POST['evento_hora_fin'] ?? null,
+                        'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
+                        'url' => $_POST['evento_url'] ?? null,
+                        'color' => $_POST['evento_color'] ?? '#0d6efd',
+                        'id_departamento' => $_SESSION['usuario']['id_departamento'],
+                        'id_publicacion' => $id
+                    ]);
+                }
+            }
+
+            // ================================
+
             $_SESSION['mensajeExito'] = 'Publicación actualizada correctamente.';
             header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
             exit;
         } else {
             $imagenes_adicionales = $this->modelo->obtenerImagenesPublicacion($id);
+
+            // Incluir evento en la vista (si existe)
+            $eventoModelo = $this->modelo('EventoModelo');
+            $evento = $eventoModelo->obtenerPorPublicacion($id)[0] ?? null;
+            $publicacion->evento = $evento;
+
             $this->vista('publicaciones/editar', [
                 'publicacion' => $publicacion,
                 'imagenes_adicionales' => $imagenes_adicionales
             ]);
         }
     }
+
 
     // ==============================
     // FUNCIONES AUXILIARES PRIVADAS

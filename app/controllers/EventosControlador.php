@@ -51,4 +51,57 @@ class EventosControlador extends Controlador
         $this->modelo->crear($datos);
         header('Location: ' . RUTA_URL . '/EventosControlador/index');
     }
+
+    public function obtener()
+    {
+        verificarSesionActiva();
+        $usuario = $_SESSION['usuario'];
+        $eventos = $this->modelo->obtenerTodos($usuario);
+
+        $resultado = [];
+
+        foreach ($eventos as $evento) {
+            // Construir fecha/hora de inicio
+            $start = $evento->fecha;
+            if (!$evento->todo_el_dia && !empty($evento->hora)) {
+                $start .= 'T' . $evento->hora;
+            }
+
+            // Construir fecha/hora de fin si existe
+            $end = null;
+            if (!empty($evento->fecha_fin)) {
+                $end = $evento->fecha_fin;
+                if (!$evento->todo_el_dia && !empty($evento->hora_fin)) {
+                    $end .= 'T' . $evento->hora_fin;
+                }
+            }
+
+            $resultado[] = [
+                'title' => $evento->titulo,
+                'start' => $start,
+                'end' => $end,
+                'allDay' => $evento->todo_el_dia == 1,
+                'descripcion' => $evento->descripcion,
+                'nombre_departamento' => $evento->nombre_departamento,
+                'id_publicacion' => $evento->id_publicacion,
+                'id_evento' => $evento->id_evento,
+                'color' => $evento->color ?: '#0d6efd',
+                'url' => $evento->url ?: null
+            ];
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($resultado);
+    }
+
+    public function eliminar($id)
+    {
+        verificarSesionActiva();
+        $this->modelo->eliminar($id);
+        $_SESSION['mensajeExito'] = 'Evento eliminado correctamente.';
+        header('Location: ' . RUTA_URL . '/EventosControlador/index');
+    }
+
+
+
 }

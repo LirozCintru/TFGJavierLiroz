@@ -50,26 +50,60 @@
                     <h5 class="text-dark border-bottom pb-2 mb-3">
                         📅 Detalles del evento
                     </h5>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="evento_titulo" class="form-label">Título del evento</label>
                             <input type="text" class="form-control shadow-sm" id="evento_titulo" name="evento_titulo">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="evento_fecha" class="form-label">Fecha</label>
-                            <input type="date" class="form-control shadow-sm" id="evento_fecha" name="evento_fecha">
+                            <label for="evento_url" class="form-label">URL asociada (opcional)</label>
+                            <input type="url" class="form-control shadow-sm" id="evento_url" name="evento_url">
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="evento_hora" class="form-label">Hora</label>
-                            <input type="time" class="form-control shadow-sm" id="evento_hora" name="evento_hora">
+                            <label for="evento_fecha" class="form-label">Fecha de inicio</label>
+                            <input type="date" class="form-control shadow-sm" id="evento_fecha" name="evento_fecha">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="evento_descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control shadow-sm" id="evento_descripcion" name="evento_descripcion"
-                                rows="3"></textarea>
+                            <label for="evento_hora" class="form-label">Hora de inicio</label>
+                            <input type="time" class="form-control shadow-sm" id="evento_hora" name="evento_hora">
                         </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="evento_fecha_fin" class="form-label">Fecha de fin (opcional)</label>
+                            <input type="date" class="form-control shadow-sm" id="evento_fecha_fin"
+                                name="evento_fecha_fin">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="evento_hora_fin" class="form-label">Hora de fin (opcional)</label>
+                            <input type="time" class="form-control shadow-sm" id="evento_hora_fin"
+                                name="evento_hora_fin">
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="evento_todo_el_dia"
+                            name="evento_todo_el_dia">
+                        <label class="form-check-label" for="evento_todo_el_dia">
+                            Evento de todo el día
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="evento_color" class="form-label">Color del evento</label>
+                        <input type="color" class="form-control form-control-color shadow-sm" id="evento_color"
+                            name="evento_color" value="#0d6efd">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="evento_descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control shadow-sm" id="evento_descripcion" name="evento_descripcion"
+                            rows="3"></textarea>
                     </div>
                 </div>
 

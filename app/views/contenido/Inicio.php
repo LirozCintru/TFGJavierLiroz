@@ -37,7 +37,9 @@ $departamentos = $datos['departamentos'] ?? [];
             <ul class="nav flex-column">
                 <li class="nav-item"><a class="nav-link" href="#">Chats</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Notificaciones</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Eventos</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= RUTA_URL ?>/EventosControlador/index">Calendario</a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="#">Mi perfil</a></li>
             </ul>
         </aside>
