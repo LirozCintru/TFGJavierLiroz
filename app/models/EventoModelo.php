@@ -45,9 +45,9 @@ class EventoModelo
     public function crear($datos)
     {
         $this->db->query("
-        INSERT INTO eventos (titulo, descripcion, fecha, hora, fecha_fin, hora_fin, todo_el_dia, url, color, id_departamento, id_publicacion)
-        VALUES (:titulo, :descripcion, :fecha, :hora, :fecha_fin, :hora_fin, :todo_el_dia, :url, :color, :id_departamento, :id_publicacion)
-    ");
+    INSERT INTO eventos (titulo, descripcion, fecha, hora, fecha_fin, hora_fin, todo_el_dia, url, color, categoria, id_departamento, id_publicacion)
+    VALUES (:titulo, :descripcion, :fecha, :hora, :fecha_fin, :hora_fin, :todo_el_dia, :url, :color, :categoria, :id_departamento, :id_publicacion)
+");
 
         $this->db->bind(':titulo', $datos['titulo']);
         $this->db->bind(':descripcion', $datos['descripcion']);
@@ -58,6 +58,7 @@ class EventoModelo
         $this->db->bind(':todo_el_dia', $datos['todo_el_dia']);
         $this->db->bind(':url', $datos['url']);
         $this->db->bind(':color', $datos['color']);
+        $this->db->bind(':categoria', $datos['categoria']);
         $this->db->bind(':id_departamento', $datos['id_departamento']);
         $this->db->bind(':id_publicacion', $datos['id_publicacion']);
 
@@ -68,35 +69,36 @@ class EventoModelo
     public function actualizar($datos)
     {
         $this->db->query("
-        UPDATE eventos SET
-            titulo = :titulo,
-            descripcion = :descripcion,
-            fecha = :fecha,
-            hora = :hora,
-            fecha_fin = :fecha_fin,
-            hora_fin = :hora_fin,
-            todo_el_dia = :todo_el_dia,
-            url = :url,
-            color = :color,
-            id_departamento = :id_departamento
-        WHERE id_evento = :id_evento
-    ");
+    UPDATE eventos SET
+        titulo = :titulo,
+        descripcion = :descripcion,
+        fecha = :fecha,
+        hora = :hora,
+        fecha_fin = :fecha_fin,
+        hora_fin = :hora_fin,
+        todo_el_dia = :todo_el_dia,
+        url = :url,
+        color = :color,
+        categoria = :categoria,
+        id_departamento = :id_departamento
+    WHERE id_evento = :id_evento
+");
 
         $this->db->bind(':titulo', $datos['titulo']);
         $this->db->bind(':descripcion', $datos['descripcion']);
         $this->db->bind(':fecha', $datos['fecha']);
-        $this->db->bind(':hora', $datos['hora']);
-        $this->db->bind(':fecha_fin', $datos['fecha_fin']);
-        $this->db->bind(':hora_fin', $datos['hora_fin']);
-        $this->db->bind(':todo_el_dia', $datos['todo_el_dia']);
-        $this->db->bind(':url', $datos['url']);
-        $this->db->bind(':color', $datos['color']);
+        $this->db->bind(':hora', $datos['hora'] ?: null);
+        $this->db->bind(':fecha_fin', $datos['fecha_fin'] ?: null);
+        $this->db->bind(':hora_fin', $datos['hora_fin'] ?: null);
+        $this->db->bind(':todo_el_dia', $datos['todo_el_dia'] ?? 0);
+        $this->db->bind(':url', $datos['url'] ?: null);
+        $this->db->bind(':color', $datos['color'] ?: '#0d6efd');
+        $this->db->bind(':categoria', $datos['categoria'] ?? 'general'); // 🔥 AÑADIDO
         $this->db->bind(':id_departamento', $datos['id_departamento']);
         $this->db->bind(':id_evento', $datos['id_evento']);
 
         return $this->db->execute();
     }
-
 
 
     public function eliminar($id)

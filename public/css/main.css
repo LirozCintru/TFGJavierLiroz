@@ -64,3 +64,22 @@ body {
   transform: scaleY(1);
   opacity: 1;
 }
+
+.leyenda-categoria {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 12px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.color-cuadro {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  flex-shrink: 0;
+  display: inline-block;
+}

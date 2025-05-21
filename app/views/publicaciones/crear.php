@@ -1,4 +1,6 @@
-<?php require RUTA_APP . '/views/inc/header.php'; ?>
+<?php require RUTA_APP . '/views/inc/header.php';
+$categorias = require RUTA_APP . '/config/categorias_evento.php';
+?>
 
 <div class="container py-4">
     <div class="card border-0 shadow-lg">
@@ -56,6 +58,19 @@
                             <label for="evento_titulo" class="form-label">Título del evento</label>
                             <input type="text" class="form-control shadow-sm" id="evento_titulo" name="evento_titulo">
                         </div>
+
+                        <div class="mb-3">
+                            <label for="evento_categoria" class="form-label">Categoría del evento</label>
+                            <select class="form-select" name="evento_categoria" id="evento_categoria">
+                                <?php foreach ($categorias as $nombre => $color): ?>
+                                    <option value="<?= htmlspecialchars($nombre) ?>" <?= ($nombre === 'General') ? 'selected' : '' ?>>
+                                        <?= $nombre ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+
                         <div class="col-md-6 mb-3">
                             <label for="evento_url" class="form-label">URL asociada (opcional)</label>
                             <input type="url" class="form-control shadow-sm" id="evento_url" name="evento_url">
@@ -94,11 +109,11 @@
                         </label>
                     </div>
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="evento_color" class="form-label">Color del evento</label>
                         <input type="color" class="form-control form-control-color shadow-sm" id="evento_color"
                             name="evento_color" value="#0d6efd">
-                    </div>
+                    </div> -->
 
                     <div class="mb-3">
                         <label for="evento_descripcion" class="form-label">Descripción</label>

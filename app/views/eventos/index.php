@@ -1,7 +1,37 @@
 <?php require RUTA_APP . '/views/inc/headerMain.php'; ?>
+<?php $categorias = require RUTA_APP . '/config/categorias_evento.php'; ?>
+
+<style>
+    #calendar {
+        min-height: 640px;
+        font-size: 0.95rem;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.3rem !important;
+    }
+
+    #modalEnlaceRow {
+        display: none;
+    }
+</style>
+
+
 
 <div class="container mt-4">
     <h3 class="mb-4">📅 Calendario de Eventos</h3>
+
+    <div class="d-flex flex-wrap mb-3">
+        <?php foreach ($categorias as $nombre => $datos): ?>
+            <div class="leyenda-categoria" title="<?= htmlspecialchars($datos['descripcion']) ?>">
+                <span class="color-cuadro" style="background-color: <?= htmlspecialchars($datos['color']) ?>;"></span>
+                <?= ucfirst($nombre) ?>
+            </div>
+        <?php endforeach; ?>
+
+    </div>
+
+
     <div id="calendar" class="shadow-sm p-2 bg-white rounded"></div>
 </div>
 
@@ -37,21 +67,6 @@
 <!-- FullCalendar -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-<style>
-    #calendar {
-        min-height: 640px;
-        font-size: 0.95rem;
-    }
-
-    .fc-toolbar-title {
-        font-size: 1.3rem !important;
-    }
-
-    #modalEnlaceRow {
-        display: none;
-    }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -102,11 +117,14 @@
             },
             eventDidMount: function (info) {
                 const color = info.event.extendedProps.color || '#0d6efd';
-                info.el.style.backgroundColor = color;
+                info.el.style.backgroundColor = `${color}22`;  // fondo translúcido
+                info.el.style.border = `2px solid ${color}`;   // borde visible
+                info.el.style.color = 'black';                 // texto
                 info.el.style.borderRadius = '6px';
-                info.el.style.padding = '3px 6px';
-                info.el.style.color = 'white';
+                info.el.style.padding = '4px 8px';
             }
+
+
         });
 
         calendar.render();

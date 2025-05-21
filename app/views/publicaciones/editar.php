@@ -1,4 +1,7 @@
-<?php require RUTA_APP . '/views/inc/headerMain.php'; ?>
+<?php
+require RUTA_APP . '/views/inc/headerMain.php';
+$categorias = require RUTA_APP . '/config/categorias_evento.php';
+?>
 
 <?php
 $publicacion = $datos['publicacion'];
@@ -97,6 +100,21 @@ $imagenes_adicionales = $datos['imagenes_adicionales'];
                     value="<?= htmlspecialchars($publicacion->evento->titulo) ?>">
             </div>
 
+            <?php
+            // Detectar categoría desde el color
+            $categoria_actual = $publicacion->evento->categoria ?? 'General';
+            ?>
+            <div class="mb-3">
+                <label for="evento_categoria" class="form-label">Categoría del evento</label>
+                <select class="form-select" name="evento_categoria" id="evento_categoria">
+                    <?php foreach ($categorias as $nombre => $color): ?>
+                        <option value="<?= htmlspecialchars($nombre) ?>" <?= ($nombre === $categoria_actual) ? 'selected' : '' ?>>
+                            <?= $nombre ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div class="mb-3">
                 <label for="evento_url" class="form-label">URL asociada (opcional)</label>
                 <input type="url" class="form-control" id="evento_url" name="evento_url"
@@ -135,11 +153,11 @@ $imagenes_adicionales = $datos['imagenes_adicionales'];
                 <label class="form-check-label" for="evento_todo_el_dia">Evento de todo el día</label>
             </div>
 
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <label for="evento_color" class="form-label">Color del evento</label>
                 <input type="color" class="form-control form-control-color" id="evento_color" name="evento_color"
                     value="<?= $publicacion->evento->color ?? '#0d6efd' ?>">
-            </div>
+            </div> -->
 
             <div class="mb-3">
                 <label for="evento_descripcion" class="form-label">Descripción</label>

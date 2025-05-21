@@ -58,6 +58,8 @@ class EventosControlador extends Controlador
         $usuario = $_SESSION['usuario'];
         $eventos = $this->modelo->obtenerTodos($usuario);
 
+        $categorias = require RUTA_APP . '/config/categorias_evento.php';
+
         $resultado = [];
 
         foreach ($eventos as $evento) {
@@ -76,6 +78,10 @@ class EventosControlador extends Controlador
                 }
             }
 
+            // Obtener color desde config por categoría
+            $categoriaEvento = $evento->categoria ?? 'General';
+            $color = $categorias[$categoriaEvento] ?? '#0d6efd';
+
             $resultado[] = [
                 'title' => $evento->titulo,
                 'start' => $start,
@@ -85,7 +91,7 @@ class EventosControlador extends Controlador
                 'nombre_departamento' => $evento->nombre_departamento,
                 'id_publicacion' => $evento->id_publicacion,
                 'id_evento' => $evento->id_evento,
-                'color' => $evento->color ?: '#0d6efd',
+                'color' => $color,
                 'url' => $evento->url ?: null
             ];
         }

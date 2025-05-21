@@ -25,6 +25,7 @@ class PublicacionesControlador extends Controlador
     public function crear()
     {
         verificarSesionActiva();
+        $categorias = require RUTA_APP . '/config/categorias_evento.php';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $datos = [
@@ -58,9 +59,10 @@ class PublicacionesControlador extends Controlador
                     'hora_fin' => $_POST['evento_hora_fin'] ?? null,
                     'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
                     'url' => $_POST['evento_url'] ?? null,
-                    'color' => $_POST['evento_color'] ?? '#0d6efd',
+                    'color' => $categorias[$_POST['evento_categoria']] ?? '#0d6efd',
                     'id_departamento' => $_SESSION['usuario']['id_departamento'],
-                    'id_publicacion' => $id_publicacion
+                    'id_publicacion' => $id_publicacion,
+                    'categoria' => $_POST['evento_categoria'] ?? 'general'
                 ]);
             }
 
@@ -97,6 +99,7 @@ class PublicacionesControlador extends Controlador
     public function editar($id)
     {
         verificarSesionActiva();
+        $categorias = require RUTA_APP . '/config/categorias_evento.php';
 
         $publicacion = $this->modelo->obtenerPorId($id);
         if (!$publicacion) {
@@ -158,7 +161,7 @@ class PublicacionesControlador extends Controlador
                         'hora_fin' => $_POST['evento_hora_fin'] ?? null,
                         'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
                         'url' => $_POST['evento_url'] ?? null,
-                        'color' => $_POST['evento_color'] ?? '#0d6efd',
+                        'color' => $categorias[$_POST['evento_categoria']]['color'] ?? '#0d6efd',
                         'id_departamento' => $_SESSION['usuario']['id_departamento'],
                         'id_publicacion' => $id
                     ]);
