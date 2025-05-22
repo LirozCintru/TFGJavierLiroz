@@ -11,43 +11,50 @@ class NotificacionesControlador extends Controlador
         $this->notificacionModelo = $this->modelo('NotificacionModelo');
     }
 
+    // 🔔 Muestra todas las notificaciones del usuario
     public function index()
     {
         verificarSesionActiva();
-        $usuario = $_SESSION['usuario'];
-        $notificaciones = $this->notificacionModelo->obtenerPorUsuario($usuario['id']);
+        $usuario_id = $_SESSION['usuario']['id'];
 
-        // Marcar como leídas al entrar
-        $this->notificacionModelo->marcarComoLeidas($usuario['id']);
+        $notificaciones = $this->notificacionModelo->obtenerTodas($usuario_id); // Incluye leídas
 
         $this->vista('notificaciones/index', [
             'notificaciones' => $notificaciones
         ]);
     }
 
-    public function obtener()
+    public function accionesMasivas()
     {
         verificarSesionActiva();
-        $notificaciones = $this->notificacionModelo->obtenerNoLeidas($_SESSION['usuario']['id']);
-        echo json_encode($notificaciones);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['seleccionadas']) && is_array($_POST['seleccionadas'])) {
+            $ids = $_POST['seleccionadas'];
+            $accion = $_POST['accion'];
+
+            foreach ($ids as $id) {
+                if ($accion === 'marcar') {
+                    $this->notificacionModelo->marcarComoLeida($id);
+                } elseif ($accion === 'eliminar') {
+                    $this->notificacionModelo->eliminar($id);
+                }
+            }
+        }
+
+        redireccionar('/NotificacionesControlador/index');
     }
 
-    public function contar()
-    {
-        verificarSesionActiva();
-        $total = $this->notificacionModelo->contarNoLeidas($_SESSION['usuario']['id']);
-        echo json_encode(['total' => $total]);
-    }
 
-
+    // 🧮 Contador de notificaciones no leídas (JSON para el badge)
     public function contador()
     {
         verificarSesionActiva();
-        $usuario = $_SESSION['usuario'];
-        $total = $this->notificacionModelo->contarPendientes($usuario['id']);
-        echo json_encode(['pendientes' => $total]);
+        $usuario_id = $_SESSION['usuario']['id'];
+
+        $pendientes = $this->notificacionModelo->contarNoLeidas($usuario_id);
+        echo json_encode(['pendientes' => $pendientes]);
     }
 
+    // ✅ Marcar como leída una notificación (desde el botón)
     public function marcarLeida($id)
     {
         verificarSesionActiva();
@@ -59,18 +66,20 @@ class NotificacionesControlador extends Controlador
         redireccionar('/NotificacionesControlador/index');
     }
 
+    // ✅ Marcar todas como leídas
     public function marcarTodasLeidas()
     {
         verificarSesionActiva();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuarioId = $_SESSION['usuario']['id'];
-            $this->notificacionModelo->marcarTodasComoLeidas($usuarioId);
+            $usuario_id = $_SESSION['usuario']['id'];
+            $this->notificacionModelo->marcarTodasComoLeidas($usuario_id);
         }
 
         redireccionar('/NotificacionesControlador/index');
     }
 
+    // 🗑️ Eliminar una notificación
     public function eliminar($id)
     {
         verificarSesionActiva();
@@ -81,8 +90,4 @@ class NotificacionesControlador extends Controlador
 
         redireccionar('/NotificacionesControlador/index');
     }
-
-
-
-
 }

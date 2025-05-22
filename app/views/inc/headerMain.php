@@ -30,34 +30,38 @@
 
   <div class="container-fluid p-0">
     <!-- Barra de navegación superior -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-4 justify-content-between">
-      <!-- Izquierda: usuario -->
-      <div class="d-flex align-items-center">
-        <img src="<?= $rutaFoto ?>" alt="Usuario" width="40" height="40" class="rounded-circle me-2 border">
-        <span class="fw-bold"><?= htmlspecialchars($usuario['nombre']) ?></span>
-      </div>
+    <nav class="navbar navbar-expand-lg bg-light border-bottom px-4 py-3"> <!-- antes era py-2 -->
+      <div class="container-fluid d-flex justify-content-between align-items-center">
 
-      <!-- Centro: navegación -->
-      <div class="text-center">
-        <ul class="navbar-nav flex-row gap-3">
-          <li class="nav-item"><a class="nav-link" href="<?= RUTA_URL ?>/ContenidoControlador/inicio"
-              data-section="inicio">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= RUTA_URL ?>/EventosControlador/index"
-              data-section="calendario">Calendario</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="perfil">Mi perfil</a></li>
+        <!-- 🧑 Usuario a la izquierda -->
+        <div class="d-flex align-items-center gap-2">
+          <img src="<?= $rutaFoto ?>" alt="Usuario" width="64" height="64" class="rounded-circle border border-2 ">
+          <span class="fw-bold"><?= htmlspecialchars($usuario['nombre']) ?></span>
+        </div>
+
+        <!-- 🔗 Menú en el centro -->
+        <ul class="navbar-nav flex-row gap-4 align-items-center m-0">
+          <li class="nav-item"><a class="nav-link px-2" href="<?= RUTA_URL ?>/ContenidoControlador/inicio">Inicio</a>
+          </li>
+          <li class="nav-item"><a class="nav-link px-2" href="<?= RUTA_URL ?>/EventosControlador/index">Calendario</a>
+          </li>
+          <li class="nav-item"><a class="nav-link px-2" href="#" data-section="perfil">Mi perfil</a></li>
           <li class="nav-item position-relative">
-            <a href="#" id="notificaciones-link">
-              <i class="bi bi-bell"></i>
-              <span id="contador-notificaciones" class="badge bg-danger d-none">0</span>
+            <a class="nav-link px-2 position-relative" href="#" id="notificaciones-link">
+              <i class="bi bi-bell" style="font-size: 1.5rem;"></i>
+              <span id="contador-notificaciones"
+                class="position-absolute top-0 start-100 badge rounded-pill bg-danger d-none"
+                style="transform: translate(-50%, 30%); font-size: 0.7rem;">
+              </span>
             </a>
           </li>
-
         </ul>
-      </div>
 
-      <!-- Derecha: cerrar sesión -->
-      <div>
-        <a href="#" class="btn btn-outline-secondary me-2">Configuración</a>
-        <a href="<?= RUTA_URL ?>/logins/salir" class="btn btn-outline-danger btn-sm">Cerrar sesión</a>
+        <!-- ⚙️ Cierre de sesión -->
+        <div class="d-flex align-items-center gap-2">
+          <a href="#" class="btn btn-outline-secondary btn-sm">Configuración</a>
+          <a href="<?= RUTA_URL ?>/logins/salir" class="btn btn-outline-danger btn-sm">Cerrar sesión</a>
+        </div>
+
       </div>
     </nav>

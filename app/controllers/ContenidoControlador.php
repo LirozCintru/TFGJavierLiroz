@@ -11,6 +11,12 @@ class ContenidoControlador extends Controlador
         $this->modelo = $this->modelo('PublicacionModelo');
     }
 
+    public function index()
+    {
+        redireccionar('/ContenidoControlador/inicio');
+    }
+
+
     public function inicio()
     {
         verificarSesionActiva();
@@ -20,7 +26,7 @@ class ContenidoControlador extends Controlador
         $busqueda = $_GET['busqueda'] ?? '';
         $id_departamento = $_GET['departamento'] ?? '';
 
-        
+
 
         // Si no es admin, limitar el filtro al departamento propio
         if ($usuario['id_rol'] != ROL_ADMIN) {
@@ -84,4 +90,24 @@ class ContenidoControlador extends Controlador
             'expandir_publicacion' => $expandirId
         ]);
     }
+
+    public function verPublicacion($id)
+    {
+        verificarSesionActiva();
+
+        $publicacion = $this->modelo->obtenerPorId($id);
+        if (!$publicacion) {
+            die('Publicación no encontrada.');
+        }
+
+        $comentarios = $this->modelo('ComentarioModelo')->obtenerPorPublicacion($id);
+        $evento = $this->modelo('EventoModelo')->obtenerPorPublicacion($id)[0] ?? null;
+
+        $this->vista('contenido/ver', [
+            'publicacion' => $publicacion,
+            'comentarios' => $comentarios,
+            'evento' => $evento
+        ]);
+    }
+
 }

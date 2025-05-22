@@ -1,22 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 🔽 Expansión de publicaciones (toggle)
+  // 🔽 Expansión de publicaciones (mostrar/ocultar contenido)
   document.querySelectorAll(".toggle-detalle").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.target;
       const detalle = document.getElementById(id);
 
       if (detalle) {
-        detalle.classList.toggle("mostrar");
+        detalle.classList.toggle("mostrar"); // Toggle de clase para mostrar detalles
 
-        // Cambiar icono (chevron abajo / arriba)
+        // Cambia el icono si existe
         const icono = btn.querySelector("i");
         if (icono) {
           icono.classList.toggle("bi-chevron-down");
           icono.classList.toggle("bi-chevron-up");
-        }
 
-        // Cambiar texto del botón, pero solo si existe icono
-        if (icono) {
+          // Solo actualiza el texto si hay icono (para evitar que se sobreescriba el título)
           btn.innerHTML =
             icono.outerHTML +
             (detalle.classList.contains("mostrar") ? " Ver menos" : " Ver más");
@@ -25,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 💬 Enviar comentario sin recargar
+  // 💬 Envío de comentarios sin recargar
   document.querySelectorAll(".form-comentario").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -39,21 +37,22 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "X-Requested-With": "XMLHttpRequest", // para diferenciar AJAX en backend
+            "X-Requested-With": "XMLHttpRequest", // para diferenciar peticiones AJAX
           },
           body: new URLSearchParams({ contenido }),
         });
 
         const html = await res.text();
+
+        // Añade nuevo comentario sin recargar
         const lista = form
           .closest(".comentarios")
           .querySelector(".comentarios-lista");
-
         if (lista && html.trim()) {
-          lista.insertAdjacentHTML("beforeend", html); // añade al final
+          lista.insertAdjacentHTML("beforeend", html);
           input.value = "";
 
-          // Actualiza contador de comentarios
+          // Actualizar contador
           const contador = form
             .closest(".comentarios")
             .querySelector(".contador-comentarios");
@@ -68,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 🗑️ Eliminar comentario sin recargar
+  // 🗑️ Eliminar comentarios por AJAX
   document.querySelectorAll(".comentarios-lista").forEach((lista) => {
     lista.addEventListener("submit", async (e) => {
       const form = e.target;
@@ -91,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const comentarioItem = form.closest(".comentario-item");
             if (comentarioItem) comentarioItem.remove();
 
-            // Actualizar contador
+            // Reducir contador
             const contador = form
               .closest(".comentarios")
               .querySelector(".contador-comentarios");
@@ -109,17 +108,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 🔔 Contador de notificaciones (burbuja en header)
+  // 🔔 Actualizar contador de notificaciones no leídas (en la cabecera)
   async function actualizarContadorNotificaciones() {
     try {
-      const res = await fetch("/NotificacionesControlador/contador"); // ← Ruta que devuelve JSON: { pendientes: X }
+      const res = await fetch(
+        "/TFGJavierLiroz/public/index.php?url=NotificacionesControlador/contador"
+      );
       const data = await res.json();
 
       const badge = document.getElementById("contador-notificaciones");
       if (badge && data.pendientes > 0) {
         badge.textContent = data.pendientes;
         badge.classList.remove("d-none");
-        document.title = `(${data.pendientes}) IntraLink`; // actualiza título
+        badge.classList.add("bg-danger");
+        document.title = `(${data.pendientes}) IntraLink`;
       } else if (badge) {
         badge.classList.add("d-none");
         document.title = "IntraLink";
@@ -129,15 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ⏱️ Ejecutar ahora y luego repetir cada 15 segundos
+  // ⏱️ Ejecutar la función al cargar y luego cada 15 segundos
   actualizarContadorNotificaciones();
   setInterval(actualizarContadorNotificaciones, 15000);
 
-  // 📥 Clic en icono o enlace de notificaciones → ir a página de lista
+  // 📥 Redirección al hacer clic en el icono de notificaciones
   const iconoNotificaciones = document.getElementById("notificaciones-link");
   if (iconoNotificaciones) {
     iconoNotificaciones.addEventListener("click", (e) => {
-      window.location.href = "/NotificacionesControlador/index"; // ← o ajusta si usas secciones dinámicas
+      e.preventDefault();
+      window.location.href = "/TFGJavierLiroz/NotificacionesControlador/index";
     });
   }
 });

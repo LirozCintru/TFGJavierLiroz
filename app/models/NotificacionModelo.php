@@ -8,10 +8,11 @@ class NotificacionModelo
         $this->db = new DataBase();
     }
 
+    // 🔔 Crear nueva notificación
     public function crear($datos)
     {
         $this->db->query("INSERT INTO notificaciones (id_usuario_destino, mensaje, tipo, id_referencia, leida) 
-                      VALUES (:id_usuario_destino, :mensaje, :tipo, :id_referencia, 0)");
+                          VALUES (:id_usuario_destino, :mensaje, :tipo, :id_referencia, 0)");
         $this->db->bind(':id_usuario_destino', $datos['id_usuario_destino']);
         $this->db->bind(':mensaje', $datos['mensaje']);
         $this->db->bind(':tipo', $datos['tipo']);
@@ -19,80 +20,81 @@ class NotificacionModelo
         return $this->db->execute();
     }
 
-    public function obtenerTodosMenos($id_autor)
+    // 📬 Obtener TODAS (leídas y no leídas)
+    public function obtenerTodas($id_usuario)
     {
-        $this->db->query("SELECT id_usuario FROM usuarios WHERE id_usuario != :id");
-        $this->db->bind(':id', $id_autor);
-        return $this->db->registros();
-    }
-
-    public function obtenerPorDepartamento($id_departamento, $id_autor)
-    {
-        $this->db->query("SELECT id_usuario FROM usuarios 
-                      WHERE id_departamento = :id_dep AND id_usuario != :id");
-        $this->db->bind(':id_dep', $id_departamento);
-        $this->db->bind(':id', $id_autor);
-        return $this->db->registros();
-    }
-
-    public function marcarComoLeida($id_notificacion)
-    {
-        $this->db->query("UPDATE notificaciones SET leida = 1 WHERE id_notificacion = :id");
-        $this->db->bind(':id', $id_notificacion);
-        return $this->db->execute();
-    }
-
-    public function obtenerPorUsuario($id_usuario)
-    {
-        $this->db->query("SELECT * FROM notificaciones WHERE id_usuario_destino = :id ORDER BY fecha DESC");
+        $this->db->query("SELECT * FROM notificaciones 
+                          WHERE id_usuario_destino = :id 
+                          ORDER BY fecha DESC");
         $this->db->bind(':id', $id_usuario);
         return $this->db->registros();
     }
 
-    public function contarPendientes($id_usuario)
-    {
-        $this->db->query("SELECT COUNT(*) as total FROM notificaciones WHERE id_usuario_destino = :id AND leida = 0");
-        $this->db->bind(':id', $id_usuario);
-        return $this->db->registro()->total;
-    }
-
-    public function marcarComoLeidas($id_usuario)
-    {
-        $this->db->query("UPDATE notificaciones SET leida = 1 WHERE id_usuario_destino = :id");
-        $this->db->bind(':id', $id_usuario);
-        return $this->db->execute();
-    }
-
+    // 📬 Obtener solo no leídas
     public function obtenerNoLeidas($id_usuario)
     {
-        $this->db->query("SELECT * FROM notificaciones WHERE id_usuario_destino = :id AND leida = 0 ORDER BY fecha DESC");
+        $this->db->query("SELECT * FROM notificaciones 
+                          WHERE id_usuario_destino = :id AND leida = 0 
+                          ORDER BY fecha DESC");
         $this->db->bind(':id', $id_usuario);
         return $this->db->registros();
     }
 
+    // 🔢 Contar no leídas
     public function contarNoLeidas($id_usuario)
     {
-        $this->db->query("SELECT COUNT(*) as total FROM notificaciones WHERE id_usuario_destino = :id AND leida = 0");
+        $this->db->query("SELECT COUNT(*) as total 
+                          FROM notificaciones 
+                          WHERE id_usuario_destino = :id AND leida = 0");
         $this->db->bind(':id', $id_usuario);
         return $this->db->registro()->total ?? 0;
     }
 
+    // ✅ Marcar una notificación como leída
+    public function marcarComoLeida($id_notificacion)
+    {
+        $this->db->query("UPDATE notificaciones 
+                          SET leida = 1 
+                          WHERE id_notificacion = :id");
+        $this->db->bind(':id', $id_notificacion);
+        return $this->db->execute();
+    }
+
+    // ✅ Marcar todas como leídas
     public function marcarTodasComoLeidas($usuarioId)
     {
-        $sql = "UPDATE notificaciones SET leida = 1 WHERE id_usuario_destino = :usuarioId";
-        $this->db->query($sql);
+        $this->db->query("UPDATE notificaciones 
+                          SET leida = 1 
+                          WHERE id_usuario_destino = :usuarioId");
         $this->db->bind(':usuarioId', $usuarioId);
-        $this->db->execute();
+        return $this->db->execute();
     }
 
+    // 🗑️ Eliminar una notificación (por ID)
     public function eliminar($id)
     {
-        $sql = "DELETE FROM notificaciones WHERE id = :id";
-        $this->db->query($sql);
+        $this->db->query("DELETE FROM notificaciones 
+                          WHERE id_notificacion = :id");
         $this->db->bind(':id', $id);
-        $this->db->execute();
+        return $this->db->execute();
     }
 
+    // 👥 Obtener todos los usuarios excepto el autor
+    public function obtenerTodosMenos($id_autor)
+    {
+        $this->db->query("SELECT id_usuario FROM usuarios 
+                          WHERE id_usuario != :id");
+        $this->db->bind(':id', $id_autor);
+        return $this->db->registros();
+    }
 
-
+    // 👥 Obtener usuarios de un departamento, excepto el autor
+    public function obtenerPorDepartamento($id_departamento, $id_autor)
+    {
+        $this->db->query("SELECT id_usuario FROM usuarios 
+                          WHERE id_departamento = :id_dep AND id_usuario != :id");
+        $this->db->bind(':id_dep', $id_departamento);
+        $this->db->bind(':id', $id_autor);
+        return $this->db->registros();
+    }
 }
