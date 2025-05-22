@@ -6,76 +6,47 @@ $pagina = $datos['pagina'] ?? 1;
 $limite = $datos['limite'] ?? 10;
 
 $publicaciones = $datos['publicaciones'] ?? [];
-$usuario = $_SESSION['usuario'];
-
-$fotoPerfil = $usuario['imagen'] ?? 'default.png';
-$rutaFoto = RUTA_URL . '/public/img/usuarios/' . $fotoPerfil;
-
 $filtro_tipo = $datos['filtro_tipo'] ?? '';
 $filtro_busqueda = $datos['filtro_busqueda'] ?? '';
 $filtro_departamento = $datos['filtro_departamento'] ?? '';
 $departamentos = $datos['departamentos'] ?? [];
 ?>
 
-<div class="container-fluid p-0">
-    <!-- Barra superior -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-4">
-        <div class="d-flex align-items-center">
-            <img src="<?= $rutaFoto ?>" alt="Usuario" width="40" height="40" class="rounded-circle me-2 border">
-            <span class="fw-bold"><?= htmlspecialchars($usuario['nombre']) ?></span>
+<div class="container py-4">
+    <div class="bg-light p-4 rounded shadow-sm border">
+
+        <!-- Encabezado -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h3 class="fw-bold mb-0">📢 Publicaciones</h3>
+            <a href="<?= RUTA_URL ?>/PublicacionesControlador/crear" class="btn btn-primary shadow-sm">
+                + Nueva publicación
+            </a>
         </div>
-        <div class="ms-auto">
-            <a href="#" class="btn btn-outline-secondary me-2">Configuración</a>
-            <a href="<?= RUTA_URL ?>/logins/salir" class="btn btn-outline-danger">Cerrar sesión</a>
-        </div>
-    </nav>
 
-    <div class="row g-0" style="height: calc(100vh - 60px);">
-        <!-- Menú lateral izquierdo -->
-        <aside class="col-3 col-md-2 bg-light border-end p-3">
-            <h6 class="text-uppercase fw-bold mb-3">Menú</h6>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" href="#">Chats</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Notificaciones</a></li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= RUTA_URL ?>/EventosControlador/index">Calendario</a>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="#">Mi perfil</a></li>
-            </ul>
-        </aside>
-
-        <!-- Zona central -->
-        <main class="col-9 col-md-10 p-4 overflow-auto">
-
-            <!-- Mensajes flash -->
-            <?php if (isset($_SESSION['mensajeExito'])): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <?= htmlspecialchars($_SESSION['mensajeExito']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
-                <?php unset($_SESSION['mensajeExito']); ?>
-            <?php endif; ?>
-
-            <?php if (isset($_SESSION['errorPublicacion'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <?= htmlspecialchars($_SESSION['errorPublicacion']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                </div>
-                <?php unset($_SESSION['errorPublicacion']); ?>
-            <?php endif; ?>
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold">Publicaciones</h4>
-                <a href="<?= RUTA_URL ?>/PublicacionesControlador/crear" class="btn btn-primary">
-                    + Nueva publicación
-                </a>
+        <!-- Alertas -->
+        <?php if (isset($_SESSION['mensajeExito'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($_SESSION['mensajeExito']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
+            <?php unset($_SESSION['mensajeExito']); ?>
+        <?php endif; ?>
 
-            <!-- Filtros -->
-            <form method="GET" class="row mb-3">
+        <?php if (isset($_SESSION['errorPublicacion'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($_SESSION['errorPublicacion']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+            <?php unset($_SESSION['errorPublicacion']); ?>
+        <?php endif; ?>
+
+        <!-- Filtros -->
+        <div class="bg-white p-3 rounded shadow-sm mb-4 border">
+            <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-3">
+                    <label class="form-label">Tipo</label>
                     <select name="tipo" class="form-select">
-                        <option value="">-- Tipo de publicación --</option>
+                        <option value="">-- Todos --</option>
                         <option value="General" <?= $filtro_tipo === 'General' ? 'selected' : '' ?>>General</option>
                         <option value="Urgente" <?= $filtro_tipo === 'Urgente' ? 'selected' : '' ?>>Urgente</option>
                         <option value="Departamental" <?= $filtro_tipo === 'Departamental' ? 'selected' : '' ?>>
@@ -84,6 +55,7 @@ $departamentos = $datos['departamentos'] ?? [];
                 </div>
 
                 <div class="col-md-2">
+                    <label class="form-label">Límite</label>
                     <select name="limite" class="form-select" onchange="this.form.submit()">
                         <option value="5" <?= $limite == 5 ? 'selected' : '' ?>>5</option>
                         <option value="10" <?= $limite == 10 ? 'selected' : '' ?>>10</option>
@@ -94,8 +66,9 @@ $departamentos = $datos['departamentos'] ?? [];
 
                 <?php if (!empty($departamentos)): ?>
                     <div class="col-md-3">
+                        <label class="form-label">Departamento</label>
                         <select name="departamento" class="form-select">
-                            <option value="">-- Departamento --</option>
+                            <option value="">-- Todos --</option>
                             <?php foreach ($departamentos as $dep): ?>
                                 <option value="<?= $dep->id_departamento ?>" <?= ($filtro_departamento == $dep->id_departamento) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($dep->nombre) ?>
@@ -105,51 +78,50 @@ $departamentos = $datos['departamentos'] ?? [];
                     </div>
                 <?php endif; ?>
 
-                <div class="col-md-4">
-                    <input type="text" name="busqueda" class="form-control"
-                        placeholder="Buscar por título o contenido..."
+                <div class="col-md-3">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="busqueda" class="form-control" placeholder="Título o contenido..."
                         value="<?= htmlspecialchars($filtro_busqueda) ?>">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
+                    <label class="form-label">Orden</label>
                     <select name="orden" class="form-select">
-                        <option value="desc" <?= ($_GET['orden'] ?? '') === 'desc' ? 'selected' : '' ?>>Más recientes
+                        <option value="desc" <?= ($_GET['orden'] ?? '') === 'desc' ? 'selected' : '' ?>>↓ Recientes
                         </option>
-                        <option value="asc" <?= ($_GET['orden'] ?? '') === 'asc' ? 'selected' : '' ?>>Más antiguas</option>
+                        <option value="asc" <?= ($_GET['orden'] ?? '') === 'asc' ? 'selected' : '' ?>>↑ Antiguas</option>
                     </select>
                 </div>
 
-
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">Filtrar</button>
+                <div class="col-md-1 d-grid">
+                    <button type="submit" class="btn btn-outline-primary">Filtrar</button>
                 </div>
             </form>
+        </div>
 
-            <!-- Contenido -->
-            <div id="contenedorPublicaciones">
-                <?php require RUTA_APP . '/views/publicaciones/index.php'; ?>
-            </div>
+        <!-- Publicaciones -->
+        <div class="bg-white shadow-sm rounded p-4" id="contenedorPublicaciones">
+            <?php require RUTA_APP . '/views/publicaciones/index.php'; ?>
+        </div>
 
-            <!-- Paginación -->
-            <?php if ($total_paginas > 1): ?>
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                            <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
-                                <a class="page-link"
-                                    href="<?= $_SERVER['PHP_SELF'] . '?' . http_build_query(array_merge($_GET, ['pagina' => $i])) ?>">
-                                    <?= $i ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
-                    </ul>
-                </nav>
-            <?php endif; ?>
-        </main>
+        <!-- Paginación -->
+        <?php if ($total_paginas > 1): ?>
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                        <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
+                            <a class="page-link"
+                                href="<?= $_SERVER['PHP_SELF'] . '?' . http_build_query(array_merge($_GET, ['pagina' => $i])) ?>">
+                                <?= $i ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+                </ul>
+            </nav>
+        <?php endif; ?>
     </div>
 </div>
 
-<!-- Script Ver más / Ver menos -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.toggle-contenido').forEach(btn => {

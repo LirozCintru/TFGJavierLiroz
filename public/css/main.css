@@ -54,17 +54,14 @@ body {
 }
 
 .expandible {
-  transform-origin: top;
-  transform: scaleY(0);
+  max-height: 0;
+  overflow: hidden;
   opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  height: auto;
-  display: none;
+  transition: all 0.4s ease;
 }
 
 .expandible.mostrar {
-  display: block;
-  transform: scaleY(1);
+  max-height: 2000px; /* ajusta si tienes más contenido */
   opacity: 1;
 }
 
@@ -112,4 +109,81 @@ body {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
+}
+
+#contenedorPublicaciones .card {
+  border: none;
+  border-left: 4px solid #0d6efd;
+  background: #f8f9fa;
+  margin-bottom: 1rem;
+}
+
+.card.border-danger {
+  border-left: 5px solid #dc3545 !important;
+}
+.card.border-warning {
+  border-left: 5px solid #ffc107 !important;
+}
+.card.border-secondary {
+  border-left: 5px solid #6c757d !important;
+}
+
+.card {
+  border-radius: 1rem;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 1.35rem;
+  color: #0d6efd;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4em 0.6em;
+  border-radius: 0.5em;
+}
+
+.toggle-detalle {
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.toggle-detalle:hover {
+  color: #0d6efd;
+}
+
+.publication-img {
+  max-height: 250px;
+  object-fit: cover;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.publication-card {
+  border-radius: 1rem;
+  background-color: #ffffff;
+  transition: box-shadow 0.3s ease;
+  border-left-width: 6px;
+}
+
+.publication-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.btn-outline-primary.toggle-detalle {
+  color: #0d6efd;
+  border-color: #0d6efd;
+  background-color: transparent;
+}
+
+.btn-outline-primary.toggle-detalle:hover {
+  background-color: #0d6efd;
+  color: #ffffff; /* ← Forzamos el texto blanco en hover */
 }

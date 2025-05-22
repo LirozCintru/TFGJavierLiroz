@@ -56,7 +56,7 @@ class PublicacionesControlador extends Controlador
             $notificacionModelo = $this->modelo('NotificacionModelo');
 
             // Si la publicación es urgente o de tipo departamento, enviar notificaciones
-            if ($_POST['tipo'] === 'urgente') {
+            if (strtolower($_POST['tipo']) === 'urgente') { 
                 $usuarios = $notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
 
                 foreach ($usuarios as $usuario) {
@@ -68,7 +68,7 @@ class PublicacionesControlador extends Controlador
                     ]);
                 }
 
-            } elseif ($_POST['tipo'] === 'departamento') {
+          } elseif ($_POST['tipo'] === 'departamento') {
                 $usuarios = $notificacionModelo->obtenerPorDepartamento($_SESSION['usuario']['id_departamento'], $_SESSION['usuario']['id']);
 
                 foreach ($usuarios as $usuario) {
