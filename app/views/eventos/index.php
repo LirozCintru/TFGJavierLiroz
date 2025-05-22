@@ -1,5 +1,6 @@
 <?php require RUTA_APP . '/views/inc/headerMain.php'; ?>
 <?php $categorias = require RUTA_APP . '/config/categorias_evento.php'; ?>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
 
 <style>
     #calendar {
@@ -16,21 +17,17 @@
     }
 </style>
 
-
-
 <div class="container mt-4">
     <h3 class="mb-4">📅 Calendario de Eventos</h3>
 
     <div class="d-flex flex-wrap mb-3">
-        <?php foreach ($categorias as $nombre => $datos): ?>
-            <div class="leyenda-categoria" title="<?= htmlspecialchars($datos['descripcion']) ?>">
-                <span class="color-cuadro" style="background-color: <?= htmlspecialchars($datos['color']) ?>;"></span>
+        <?php foreach ($categorias as $nombre => $info): ?>
+            <div class="leyenda-categoria">
+                <span class="color-cuadro" style="background-color: <?= htmlspecialchars($info['color']) ?>;"></span>
                 <?= ucfirst($nombre) ?>
             </div>
         <?php endforeach; ?>
-
     </div>
-
 
     <div id="calendar" class="shadow-sm p-2 bg-white rounded"></div>
 </div>
@@ -65,8 +62,6 @@
 </div>
 
 <!-- FullCalendar -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -76,12 +71,14 @@
             initialView: 'dayGridMonth',
             locale: 'es',
             height: 'auto',
+            eventDisplay: 'block', 
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
             },
             events: '<?= RUTA_URL ?>/EventosControlador/obtener',
+
             eventClick: function (info) {
                 const e = info.event.extendedProps;
 
@@ -115,20 +112,54 @@
                 new bootstrap.Modal(document.getElementById('eventoModal')).show();
                 info.jsEvent.preventDefault();
             },
+
             eventDidMount: function (info) {
-                const color = info.event.extendedProps.color || '#0d6efd';
-                info.el.style.backgroundColor = `${color}22`;  // fondo translúcido
-                info.el.style.border = `2px solid ${color}`;   // borde visible
-                info.el.style.color = 'black';                 // texto
-                info.el.style.borderRadius = '6px';
-                info.el.style.padding = '4px 8px';
+                const color = info.event.backgroundColor || '#0d6efd';
+                const el = info.el;
+
+                // Estilo base
+                el.style.backgroundColor = `${color}22`;
+                el.style.border = `2px solid ${color}`;
+                el.style.borderRadius = '6px';
+                el.style.padding = '4px 8px';
+                el.style.color = '#000'; // Siempre texto negro
+
+                // Limpiar puntos anteriores
+                el.querySelectorAll('.evento-dot').forEach(dot => dot.remove());
+
+                // Crear nuevo punto
+                const dot = document.createElement('span');
+                dot.className = 'evento-dot';
+                dot.style.cssText = `
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background-color: ${color};
+                    margin-right: 6px;
+                    vertical-align: middle;
+                `;
+
+                // Insertar el punto delante del texto del evento
+                const titleContainer = el.querySelector('.fc-event-title');
+                if (titleContainer) {
+                    const span = document.createElement('span');
+                    span.textContent = titleContainer.textContent;
+                    span.style.fontWeight = 'normal';
+                    span.className = 'evento-titulo';
+
+                    titleContainer.innerHTML = '';
+                    titleContainer.appendChild(dot);
+                    titleContainer.appendChild(span);
+                } else {
+                    el.prepend(dot);
+                }
             }
-
-
         });
 
         calendar.render();
     });
 </script>
+
 
 <?php require RUTA_APP . '/views/inc/footer.php'; ?>

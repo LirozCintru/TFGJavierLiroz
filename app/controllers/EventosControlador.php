@@ -63,13 +63,11 @@ class EventosControlador extends Controlador
         $resultado = [];
 
         foreach ($eventos as $evento) {
-            // Construir fecha/hora de inicio
             $start = $evento->fecha;
             if (!$evento->todo_el_dia && !empty($evento->hora)) {
                 $start .= 'T' . $evento->hora;
             }
 
-            // Construir fecha/hora de fin si existe
             $end = null;
             if (!empty($evento->fecha_fin)) {
                 $end = $evento->fecha_fin;
@@ -78,9 +76,8 @@ class EventosControlador extends Controlador
                 }
             }
 
-            // Obtener color desde config por categoría
-            $categoriaEvento = $evento->categoria ?? 'General';
-            $color = $categorias[$categoriaEvento] ?? '#0d6efd';
+            $categoria = $evento->categoria ?? 'General';
+            $color = $categorias[$categoria]['color'] ?? '#0d6efd';
 
             $resultado[] = [
                 'title' => $evento->titulo,
@@ -91,8 +88,10 @@ class EventosControlador extends Controlador
                 'nombre_departamento' => $evento->nombre_departamento,
                 'id_publicacion' => $evento->id_publicacion,
                 'id_evento' => $evento->id_evento,
-                'color' => $color,
-                'url' => $evento->url ?: null
+                'hora' => $evento->hora,
+                'hora_fin' => $evento->hora_fin,
+                'url' => $evento->url ?: null,
+                'color' => $color, // 👈 esto es lo que se usa en JS
             ];
         }
 

@@ -6,12 +6,15 @@ class PublicacionesControlador extends Controlador
 {
     private $modelo;
     private $comentarioModelo;
+    private $notificacionModelo;
+
 
 
     public function __construct()
     {
         $this->modelo = $this->modelo('PublicacionModelo');
         $this->comentarioModelo = $this->modelo('ComentarioModelo');
+        $this->notificacionModelo = $this->modelo('NotificacionModelo');
     }
 
 
@@ -47,6 +50,39 @@ class PublicacionesControlador extends Controlador
 
             $this->procesarImagenesAdicionales($id_publicacion);
 
+            // =========================
+            // 🔔 Generar notificación
+            // =========================
+            $notificacionModelo = $this->modelo('NotificacionModelo');
+
+            // Si la publicación es urgente o de tipo departamento, enviar notificaciones
+            if ($_POST['tipo'] === 'urgente') {
+                $usuarios = $notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
+
+                foreach ($usuarios as $usuario) {
+                    $notificacionModelo->crear([
+                        'id_usuario_destino' => $usuario->id_usuario,
+                        'mensaje' => '📢 Nueva publicación urgente: "' . $datos['titulo'] . '"',
+                        'tipo' => 'urgente',
+                        'id_referencia' => $id_publicacion
+                    ]);
+                }
+
+            } elseif ($_POST['tipo'] === 'departamento') {
+                $usuarios = $notificacionModelo->obtenerPorDepartamento($_SESSION['usuario']['id_departamento'], $_SESSION['usuario']['id']);
+
+                foreach ($usuarios as $usuario) {
+                    $notificacionModelo->crear([
+                        'id_usuario_destino' => $usuario->id_usuario,
+                        'mensaje' => '🗂 Nueva publicación para tu departamento: "' . $datos['titulo'] . '"',
+                        'tipo' => 'departamento',
+                        'id_referencia' => $id_publicacion
+                    ]);
+                }
+            }
+
+
+
             // Si hay evento
             if (!empty($_POST['activar_evento']) && !empty($_POST['evento_titulo']) && !empty($_POST['evento_fecha'])) {
                 $eventoModelo = $this->modelo('EventoModelo');
@@ -59,13 +95,32 @@ class PublicacionesControlador extends Controlador
                     'hora_fin' => $_POST['evento_hora_fin'] ?? null,
                     'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
                     'url' => $_POST['evento_url'] ?? null,
-                    'color' => $categorias[$_POST['evento_categoria']] ?? '#0d6efd',
+                    'color' => $categorias[$_POST['evento_categoria']]['color'] ?? '#0d6efd',
                     'id_departamento' => $_SESSION['usuario']['id_departamento'],
                     'id_publicacion' => $id_publicacion,
                     'categoria' => $_POST['evento_categoria'] ?? 'general'
                 ]);
-            }
+                // 🔔 Notificar si hay evento vinculado
+                if (!empty($evento_id)) {
+                    $usuariosDestino = [];
 
+                    if ($_POST['tipo'] === 'departamento') {
+                        $usuariosDestino = $this->notificacionModelo->obtenerPorDepartamento($_SESSION['usuario']['id_departamento'], $_SESSION['usuario']['id']);
+                    } else {
+                        $usuariosDestino = $this->notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
+                    }
+
+                    foreach ($usuariosDestino as $u) {
+                        $this->notificacionModelo->crear([
+                            'id_usuario_destino' => $u->id_usuario,
+                            'mensaje' => '📅 Nueva publicación con evento programado.',
+                            'tipo' => 'evento',
+                            'id_referencia' => $evento_id
+                        ]);
+                    }
+                }
+
+            }
 
             $_SESSION['mensajeExito'] = 'Publicación creada correctamente.';
             header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
@@ -162,6 +217,7 @@ class PublicacionesControlador extends Controlador
                         'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
                         'url' => $_POST['evento_url'] ?? null,
                         'color' => $categorias[$_POST['evento_categoria']]['color'] ?? '#0d6efd',
+                        'categoria' => $_POST['evento_categoria'] ?? 'General',
                         'id_departamento' => $_SESSION['usuario']['id_departamento'],
                         'id_publicacion' => $id
                     ]);

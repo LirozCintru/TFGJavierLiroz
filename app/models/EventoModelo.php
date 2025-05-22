@@ -45,25 +45,31 @@ class EventoModelo
     public function crear($datos)
     {
         $this->db->query("
-    INSERT INTO eventos (titulo, descripcion, fecha, hora, fecha_fin, hora_fin, todo_el_dia, url, color, categoria, id_departamento, id_publicacion)
-    VALUES (:titulo, :descripcion, :fecha, :hora, :fecha_fin, :hora_fin, :todo_el_dia, :url, :color, :categoria, :id_departamento, :id_publicacion)
-");
+        INSERT INTO eventos (
+            titulo, descripcion, fecha, hora, fecha_fin, hora_fin,
+            todo_el_dia, url, color, categoria, id_departamento, id_publicacion
+        ) VALUES (
+            :titulo, :descripcion, :fecha, :hora, :fecha_fin, :hora_fin,
+            :todo_el_dia, :url, :color, :categoria, :id_departamento, :id_publicacion
+        )
+    ");
 
         $this->db->bind(':titulo', $datos['titulo']);
         $this->db->bind(':descripcion', $datos['descripcion']);
         $this->db->bind(':fecha', $datos['fecha']);
-        $this->db->bind(':hora', $datos['hora']);
-        $this->db->bind(':fecha_fin', $datos['fecha_fin']);
-        $this->db->bind(':hora_fin', $datos['hora_fin']);
-        $this->db->bind(':todo_el_dia', $datos['todo_el_dia']);
-        $this->db->bind(':url', $datos['url']);
-        $this->db->bind(':color', $datos['color']);
-        $this->db->bind(':categoria', $datos['categoria']);
+        $this->db->bind(':hora', !empty($datos['hora']) ? $datos['hora'] : null);
+        $this->db->bind(':fecha_fin', !empty($datos['fecha_fin']) ? $datos['fecha_fin'] : null);
+        $this->db->bind(':hora_fin', !empty($datos['hora_fin']) ? $datos['hora_fin'] : null);
+        $this->db->bind(':todo_el_dia', $datos['todo_el_dia'] ?? 0);
+        $this->db->bind(':url', $datos['url'] ?? null);
+        $this->db->bind(':color', $datos['color'] ?? '#0d6efd');
+        $this->db->bind(':categoria', $datos['categoria'] ?? 'General');
         $this->db->bind(':id_departamento', $datos['id_departamento']);
         $this->db->bind(':id_publicacion', $datos['id_publicacion']);
 
         return $this->db->execute();
     }
+
 
 
     public function actualizar($datos)

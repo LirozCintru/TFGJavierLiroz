@@ -107,12 +107,13 @@ $imagenes_adicionales = $datos['imagenes_adicionales'];
             <div class="mb-3">
                 <label for="evento_categoria" class="form-label">Categoría del evento</label>
                 <select class="form-select" name="evento_categoria" id="evento_categoria">
-                    <?php foreach ($categorias as $nombre => $color): ?>
+                    <?php foreach ($categorias as $nombre => $cat): ?>
                         <option value="<?= htmlspecialchars($nombre) ?>" <?= ($nombre === $categoria_actual) ? 'selected' : '' ?>>
                             <?= $nombre ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+
             </div>
 
             <div class="mb-3">
