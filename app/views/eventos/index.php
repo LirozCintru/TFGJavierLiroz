@@ -1,4 +1,4 @@
-<?php require RUTA_APP . '/views/inc/headerMain.php'; ?>
+<?php require RUTA_APP . '/views/inc/headermain.php'; ?>
 <?php $categorias = require RUTA_APP . '/config/categorias_evento.php'; ?>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
 
@@ -7,59 +7,44 @@
         min-height: 640px;
         font-size: 0.95rem;
     }
-
     .fc-toolbar-title {
         font-size: 1.3rem !important;
     }
-
     #modalEnlaceRow {
         display: none;
     }
 </style>
 
-<div class="container mt-4">
-    <h3 class="mb-4">📅 Calendario de Eventos</h3>
+<div class="container py-4">
+    <!-- Contenedor visual en bloque -->
+    <div class="rounded-4 overflow-hidden shadow border border-2 bg-white">
 
-    <div class="d-flex flex-wrap mb-3">
-        <?php foreach ($categorias as $nombre => $info): ?>
-            <div class="leyenda-categoria">
-                <span class="color-cuadro" style="background-color: <?= htmlspecialchars($info['color']) ?>;"></span>
-                <?= ucfirst($nombre) ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
+        <!-- Cabecera con franja azul -->
+        <div class="encabezado-usuarios-index px-4 py-3 d-flex justify-content-between align-items-center">
+            <h5 class="titulo-edicion mb-0">
+                <i class="bi bi-calendar-event me-2"></i>Calendario de Eventos
+            </h5>
+        </div>
 
-    <div id="calendar" class="shadow-sm p-2 bg-white rounded"></div>
-</div>
+        <!-- Leyenda de categorías -->
+        <div class="px-4 pt-3 pb-2 d-flex flex-wrap">
+            <?php foreach ($categorias as $nombre => $info): ?>
+                <div class="leyenda-categoria">
+                    <span class="color-cuadro" style="background-color: <?= htmlspecialchars($info['color']) ?>;"></span>
+                    <?= ucfirst($nombre) ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
 
-<!-- Modal para detalles del evento -->
-<div class="modal fade" id="eventoModal" tabindex="-1" aria-labelledby="eventoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="eventoModalLabel">📌 Detalles del Evento</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Título:</strong> <span id="modalTitulo"></span></p>
-                <p><strong>Fecha:</strong> <span id="modalFecha"></span></p>
-                <p><strong>Hora:</strong> <span id="modalHora"></span></p>
-                <p><strong>Departamento:</strong> <span id="modalDepartamento"></span></p>
-                <p><strong>Descripción:</strong><br><span id="modalDescripcion"></span></p>
-                <p id="modalEnlaceRow"><strong>🔗 Enlace:</strong> <a href="#" id="modalUrl" target="_blank"
-                        rel="noopener noreferrer">Ir al enlace</a></p>
-            </div>
-            <div class="modal-footer">
-                <a href="#" id="btnEditar" class="btn btn-success btn-sm">✏️ Editar publicación</a>
-                <form id="formEliminarEvento" method="POST" action="" style="display: inline;">
-                    <button type="submit" class="btn btn-danger btn-sm"
-                        onclick="return confirm('¿Eliminar este evento?')">🗑️ Eliminar</button>
-                </form>
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-            </div>
+        <!-- Calendario -->
+        <div class="px-0 pb-0">
+            <div id="calendar" class="shadow-sm p-2 bg-white rounded"></div>
         </div>
     </div>
 </div>
+
+<?php require RUTA_APP . '/views/inc/footer.php'; ?>
+
 
 <!-- FullCalendar -->
 
@@ -71,7 +56,7 @@
             initialView: 'dayGridMonth',
             locale: 'es',
             height: 'auto',
-            eventDisplay: 'block', 
+            eventDisplay: 'block',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',

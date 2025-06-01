@@ -119,40 +119,59 @@ class UsuarioModelo
         return $this->db->registro() ? true : false;
     }
 
-    public function actualizarPerfil($id_usuario, $datos, $nuevaContrasena = '', $nuevaImagen = null)
+    public function actualizarPerfil($id_usuario, $valores, $nuevaContrasena = null, $imagen = null)
     {
-        $campos = [];
-        $params = [':id' => $id_usuario];
+        $sql = "UPDATE usuarios SET nombre = :nombre, email = :email";
 
-        // Nombre y email
-        $campos[] = "nombre = :nombre";
-        $params[':nombre'] = $datos['nombre'];
-
-        $campos[] = "email = :email";
-        $params[':email'] = $datos['email'];
-
-        // Contraseña (si se quiere cambiar)
-        if (!empty($nuevaContrasena)) {
-            $campos[] = "contrasena = :contrasena";
-            $params[':contrasena'] = password_hash($nuevaContrasena, PASSWORD_DEFAULT);
+        if ($nuevaContrasena) {
+            $sql .= ", contrasena = :contrasena";
         }
 
-        // Imagen (si se ha subido una nueva)
-        if (!empty($nuevaImagen)) {
-            $campos[] = "imagen = :imagen";
-            $params[':imagen'] = $nuevaImagen;
+        if ($imagen) {
+            $sql .= ", imagen = :imagen";
         }
 
-        // Construir la consulta
-        $sql = "UPDATE usuarios SET " . implode(', ', $campos) . " WHERE id_usuario = :id";
+        $sql .= " WHERE id_usuario = :id_usuario";
+
         $this->db->query($sql);
+        $this->db->bind(':nombre', $valores['nombre']);
+        $this->db->bind(':email', $valores['email']);
+        $this->db->bind(':id_usuario', $id_usuario);
 
-        foreach ($params as $clave => $valor) {
-            $this->db->bind($clave, $valor);
+        if ($nuevaContrasena) {
+            $this->db->bind(':contrasena', $nuevaContrasena);
+        }
+
+        if ($imagen) {
+            $this->db->bind(':imagen', $imagen);
         }
 
         return $this->db->execute();
     }
+
+
+    public function obtenerUltimoId()
+    {
+        $this->db->query("SELECT LAST_INSERT_ID() as id");
+        return $this->db->registro()->id;
+    }
+
+    public function actualizarContrasena($id_usuario, $contrasena_hash)
+    {
+        $this->db->query("UPDATE usuarios SET contrasena = :contrasena WHERE id_usuario = :id");
+        $this->db->bind(':contrasena', $contrasena_hash);
+        $this->db->bind(':id', $id_usuario);
+        return $this->db->execute();
+    }
+
+    public function obtenerPorEmail($email)
+    {
+        $this->db->query("SELECT * FROM usuarios WHERE email = :email LIMIT 1");
+        $this->db->bind(':email', $email);
+        return $this->db->registro();
+    }
+
+
 
 
 

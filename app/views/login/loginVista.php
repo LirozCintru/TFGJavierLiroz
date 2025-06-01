@@ -4,6 +4,31 @@
 <div class="login-background d-flex justify-content-center align-items-center">
     <div class="login-container">
         <h3 class="login-title">Iniciar Sesión</h3>
+        <?php if (isset($_SESSION['mensaje_error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+                <?= htmlspecialchars($_SESSION['mensaje_error']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+            <?php unset($_SESSION['mensaje_error']); ?>
+        <?php endif; ?>
+
+
+        <?php if (!empty($_SESSION['mensaje'])): ?>
+            <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+                <?= $_SESSION['mensaje'];
+                unset($_SESSION['mensaje']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['mensaje_error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+                <?= $_SESSION['mensaje_error'];
+                unset($_SESSION['mensaje_error']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
 
         <!-- Mensaje si las credenciales no son válidas -->
         <?php if (!empty($datos['errorUnique'])): ?>
@@ -29,7 +54,7 @@
                     <i class="bi bi-envelope-fill me-1"></i> Email
                 </label>
                 <input type="text" class="form-control border-primary shadow-sm" id="email" name="email"
-                       value="<?php echo isset($datos['email']) ? htmlspecialchars($datos['email']) : ''; ?>" required>
+                    value="<?php echo isset($datos['email']) ? htmlspecialchars($datos['email']) : ''; ?>" required>
                 <?php if (!empty($datos['errorEmail'])): ?>
                     <span class="text-danger"><?php echo htmlspecialchars($datos['errorEmail']); ?></span>
                 <?php endif; ?>
@@ -39,7 +64,8 @@
                 <label for="contrasena" class="form-label fw-bold text-primary">
                     <i class="bi bi-lock-fill me-1"></i> Contraseña
                 </label>
-                <input type="password" class="form-control border-primary shadow-sm" id="contrasena" name="contrasena" required>
+                <input type="password" class="form-control border-primary shadow-sm" id="contrasena" name="contrasena"
+                    required>
                 <?php if (!empty($datos['errorContrasena'])): ?>
                     <span class="text-danger"><?php echo htmlspecialchars($datos['errorContrasena']); ?></span>
                 <?php endif; ?>

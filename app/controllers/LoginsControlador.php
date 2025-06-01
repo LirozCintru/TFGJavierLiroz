@@ -13,13 +13,17 @@ class LoginsControlador extends Controlador
     public function index()
     {
         session_start();
-        if (isset($_SESSION['usuario'])) {
+
+        // Solo redirige automáticamente si NO viene del restablecimiento
+        if (isset($_SESSION['usuario']) && empty($_SESSION['token_restablecer'])) {
             header("Location: " . RUTA_URL . "/ContenidoControlador/inicio");
             exit;
         }
 
+        // Si viene del restablecimiento, simplemente se carga la vista de login
         $this->vista('/login/loginVista');
     }
+
 
     public function inicio()
     {
@@ -69,6 +73,7 @@ class LoginsControlador extends Controlador
                         'id_departamento' => $usuario->id_departamento,
                         'imagen' => $usuario->imagen ?? 'default.png'
                     ];
+                    unset($_SESSION['token_restablecer']);
 
                     // Redirigir según rol (si quieres diferenciar dashboards)
                     // if ($usuario->id_rol == 1) {
@@ -112,7 +117,10 @@ class LoginsControlador extends Controlador
     public function salir()
     {
         session_start();
+        session_unset();
         session_destroy();
+        setcookie(session_name(), '', time() - 3600, '/');
         header('Location: ' . RUTA_URL . '/logins');
     }
+
 }

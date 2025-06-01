@@ -33,8 +33,6 @@ class UsuariosControlador extends Controlador
         ]);
     }
 
-
-
     public function crear()
     {
         verificarSesionActiva();
@@ -81,41 +79,51 @@ class UsuariosControlador extends Controlador
                 return;
             }
 
-            // Datos validados
+            // Crear el usuario con contraseña temporal vacía (o con una contraseña temporal)
             $datos = [
                 'nombre' => $_POST['nombre'],
                 'email' => $_POST['email'],
-                'contrasena' => password_hash($_POST['contrasena'], PASSWORD_DEFAULT),
+                'contrasena' => password_hash(bin2hex(random_bytes(5)), PASSWORD_DEFAULT), // contraseña temporal aleatoria
                 'id_rol' => $_POST['id_rol'],
                 'id_departamento' => $_POST['id_departamento'],
                 'activo' => isset($_POST['activo']) ? 1 : 0,
                 'imagen' => $imagen
             ];
 
-            // Crear en BD
             $this->usuarioModelo->crear($datos);
 
-            // Enviar correo al nuevo usuario
+            // Obtener el último ID insertado
+            $idNuevo = $this->usuarioModelo->obtenerUltimoId();
+
+            // Crear token
+            $token = bin2hex(random_bytes(32));
+            $expiracion = date('Y-m-d H:i:s', strtotime('+1 day'));
+
+            $db = new DataBase();
+            $db->query("INSERT INTO tokens_restablecer (id_usuario, token, expiracion) VALUES (:id_usuario, :token, :exp)");
+            $db->bind(':id_usuario', $idNuevo);
+            $db->bind(':token', $token);
+            $db->bind(':exp', $expiracion);
+            $db->execute();
+
+            // Enviar correo con enlace de establecer clave
             require_once RUTA_APP . '/librerias/Correo.php';
 
+            $enlace = RUTA_URL . "/RestablecerControlador/clave?token=$token";
             $mensaje = "Hola <strong>" . htmlspecialchars($datos['nombre']) . "</strong>,<br><br>
         Tu cuenta ha sido creada correctamente en <strong>IntraLink</strong>.<br>
-        Puedes acceder al sistema con el enlace siguiente.";
-
-            $enlace = RUTA_URL . "/logins"; // Se puede personalizar más adelante
+        Para establecer tu contraseña y activar tu cuenta, haz clic en el siguiente botón. Este enlace caduca en 1 hora.";
 
             Correo::enviarBonito(
                 $datos['email'],
-                '👋 Bienvenido a IntraLink',
+                '🔐 Establece tu contraseña en IntraLink',
                 $mensaje,
-                'Acceder a IntraLink',
+                'Establecer contraseña',
                 $enlace
             );
 
-            // Redirigir
             redireccionar('/UsuariosControlador/index');
         } else {
-            // Mostrar formulario por GET
             $roles = $this->modelo('RolModelo')->obtenerTodos();
             $departamentos = $this->modelo('DepartamentoModelo')->obtenerTodos();
 
@@ -125,8 +133,6 @@ class UsuariosControlador extends Controlador
             ]);
         }
     }
-
-
 
     public function editar($id)
     {
