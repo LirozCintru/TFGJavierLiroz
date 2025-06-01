@@ -1,9 +1,11 @@
 <?php
-
 if (!function_exists('verificarRol')) {
     function verificarRol($rolesPermitidos = [])
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['usuario']) || !in_array($_SESSION['usuario']['id_rol'], $rolesPermitidos)) {
             $_SESSION['errorPermiso'] = "No tienes permisos para acceder a esta sección.";
             header("Location: " . RUTA_URL . "/logins");
@@ -15,7 +17,10 @@ if (!function_exists('verificarRol')) {
 if (!function_exists('verificarSesionActiva')) {
     function verificarSesionActiva()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['usuario'])) {
             $_SESSION['errorPermiso'] = "Debes iniciar sesión para acceder.";
             header("Location: " . RUTA_URL . "/logins");
@@ -23,6 +28,31 @@ if (!function_exists('verificarSesionActiva')) {
         }
     }
 }
+
+
+// if (!function_exists('verificarRol')) {
+//     function verificarRol($rolesPermitidos = [])
+//     {
+//         session_start();
+//         if (!isset($_SESSION['usuario']) || !in_array($_SESSION['usuario']['id_rol'], $rolesPermitidos)) {
+//             $_SESSION['errorPermiso'] = "No tienes permisos para acceder a esta sección.";
+//             header("Location: " . RUTA_URL . "/logins");
+//             exit();
+//         }
+//     }
+// }
+
+// if (!function_exists('verificarSesionActiva')) {
+//     function verificarSesionActiva()
+//     {
+//         session_start();
+//         if (!isset($_SESSION['usuario'])) {
+//             $_SESSION['errorPermiso'] = "Debes iniciar sesión para acceder.";
+//             header("Location: " . RUTA_URL . "/logins");
+//             exit;
+//         }
+//     }
+// }
 
 
 if (!function_exists('test_input')) {
