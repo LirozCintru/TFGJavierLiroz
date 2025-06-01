@@ -1,50 +1,122 @@
-<?php require RUTA_APP . '/views/inc/headermain.php'; ?>
+<?php require RUTA_APP . '/views/inc/headerMain.php'; ?>
 <?php $categorias = require RUTA_APP . '/config/categorias_evento.php'; ?>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
-
 <style>
     #calendar {
-        min-height: 640px;
+        width: 100% !important;
+        padding: 1rem !important;
+        margin: 0 auto;
         font-size: 0.95rem;
+        min-height: 640px;
+
+        background-color: #fdfdfd;
+        /* Fondo muy suave */
+        border: 1px solid #dee2e6;
+        /* Borde ligero */
+        border-radius: 0.75rem;
+        /* Bordes redondeados */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        /* Sombra suave */
     }
+
+    .bg-white {
+        background-color: #fbfbfc !important;
+        /* Un tono más suave que el blanco puro */
+    }
+
     .fc-toolbar-title {
         font-size: 1.3rem !important;
     }
+
     #modalEnlaceRow {
         display: none;
     }
+
+    .contenedor-calendario {
+        margin: 0;
+        padding: 0;
+    }
+
+    .bloque-calendario {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        border-top: 2px solid #dee2e6;
+    }
+
+    .leyenda-categoria {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 12px;
+        margin-bottom: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .color-cuadro {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1px solid #333;
+        flex-shrink: 0;
+        display: inline-block;
+    }
 </style>
-
 <div class="container py-4">
-    <!-- Contenedor visual en bloque -->
     <div class="rounded-4 overflow-hidden shadow border border-2 bg-white">
-
-        <!-- Cabecera con franja azul -->
-        <div class="encabezado-usuarios-index px-4 py-3 d-flex justify-content-between align-items-center">
+        <!-- Cabecera -->
+        <div class="encabezado-edicion px-4 py-3 d-flex justify-content-between align-items-center">
             <h5 class="titulo-edicion mb-0">
-                <i class="bi bi-calendar-event me-2"></i>Calendario de Eventos
+                <i class="bi bi-calendar-event-fill me-2"></i>Calendario de Eventos
             </h5>
         </div>
 
-        <!-- Leyenda de categorías -->
-        <div class="px-4 pt-3 pb-2 d-flex flex-wrap">
-            <?php foreach ($categorias as $nombre => $info): ?>
-                <div class="leyenda-categoria">
-                    <span class="color-cuadro" style="background-color: <?= htmlspecialchars($info['color']) ?>;"></span>
-                    <?= ucfirst($nombre) ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <div class="px-4 pt-3 pb-4">
+            <div class="d-flex flex-wrap mb-3">
+                <?php foreach ($categorias as $nombre => $info): ?>
+                    <div class="leyenda-categoria me-4 mb-2">
+                        <span class="color-cuadro"
+                            style="background-color: <?= htmlspecialchars($info['color']) ?>;"></span>
+                        <?= ucfirst($nombre) ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
-        <!-- Calendario -->
-        <div class="px-0 pb-0">
-            <div id="calendar" class="shadow-sm p-2 bg-white rounded"></div>
+            <div id="calendar" class="w-100 bg-white rounded"></div>
         </div>
     </div>
 </div>
 
-<?php require RUTA_APP . '/views/inc/footer.php'; ?>
 
+<div class="modal fade" id="eventoModal" tabindex="-1" aria-labelledby="eventoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="eventoModalLabel">📌 Detalles del Evento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Título:</strong> <span id="modalTitulo"></span></p>
+                <p><strong>Fecha:</strong> <span id="modalFecha"></span></p>
+                <p><strong>Hora:</strong> <span id="modalHora"></span></p>
+                <p><strong>Departamento:</strong> <span id="modalDepartamento"></span></p>
+                <p><strong>Descripción:</strong><br><span id="modalDescripcion"></span></p>
+                <p id="modalEnlaceRow" style="display:none;"><strong>🔗 Enlace:</strong> <a href="#" id="modalUrl"
+                        target="_blank" rel="noopener noreferrer">Ir al enlace</a></p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="btnEditar" class="btn btn-success btn-sm">✏️ Editar publicación</a>
+                <form id="formEliminarEvento" method="POST" action="" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('¿Eliminar este evento?')">🗑️ Eliminar</button>
+                </form>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- FullCalendar -->
 
