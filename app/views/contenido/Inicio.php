@@ -17,12 +17,19 @@ $departamentos = $datos['departamentos'] ?? [];
 
         <!-- Cabecera decorada -->
         <div class="encabezado-edicion px-4 py-3 d-flex justify-content-between align-items-center">
-            <h5 class="titulo-edicion mb-0"><i class="bi bi-megaphone-fill me-2"></i>Publicaciones</h5>
-            <a href="<?= RUTA_URL ?>/PublicacionesControlador/crear"
-                class="btn btn-success rounded-pill d-flex align-items-center gap-2 px-3 py-1">
-                <i class="bi bi-plus-circle"></i> <span>Nueva publicación</span>
-            </a>
+            <h5 class="titulo-edicion mb-0">
+                <i class="bi bi-megaphone-fill me-2"></i>Publicaciones
+            </h5>
+
+            <?php if (in_array($_SESSION['usuario']['id_rol'], [ROL_ADMIN, ROL_JEFE])): ?>
+                <a href="<?= RUTA_URL ?>/PublicacionesControlador/crear"
+                    class="btn btn-success rounded-pill d-flex align-items-center gap-2 px-3 py-1">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Nueva publicación</span>
+                </a>
+            <?php endif; ?>
         </div>
+
 
         <div class="px-4 pt-3 pb-4">
 
@@ -105,7 +112,7 @@ $departamentos = $datos['departamentos'] ?? [];
             </div>
 
             <!-- Publicaciones -->
-            <div class="bg-white shadow-sm rounded p-3" id="contenedorPublicaciones">
+            <div class="bg-white rounded p-0" id="contenedorPublicaciones">
                 <?php require RUTA_APP . '/views/publicaciones/index.php'; ?>
             </div>
 
@@ -114,7 +121,7 @@ $departamentos = $datos['departamentos'] ?? [];
                 <nav class="mt-4">
                     <ul class="pagination justify-content-center">
                         <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                            <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
+                            <li class="page-item m-1 <?= $i == $pagina ? 'active' : '' ?>">
                                 <a class="page-link rounded-pill"
                                     href="<?= $_SERVER['PHP_SELF'] . '?' . http_build_query(array_merge($_GET, ['pagina' => $i])) ?>">
                                     <?= $i ?>

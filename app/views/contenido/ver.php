@@ -32,7 +32,7 @@ switch ($publicacion->tipo) {
 $contenidoCompleto = nl2br(htmlspecialchars($publicacion->contenido));
 $contador = count($comentarios);
 ?>
-
+ <!-- <div class="bg-white shadow-sm rounded p-0" id="contenedorPublicaciones"></div> -->
 <div class="container py-4">
     <div class="card publication-card shadow-sm <?= $tipoClase ?>">
         <?php if (!empty($publicacion->imagen_destacada)): ?>

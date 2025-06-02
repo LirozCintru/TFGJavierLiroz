@@ -25,10 +25,22 @@ class PublicacionesControlador extends Controlador
         $this->vista('publicaciones/index', ['publicaciones' => $publicaciones]);
     }
 
+    /** Devuelve true si el usuario actual es ADMIN o JEFE */
+    private function esAdminOJefe(): bool
+    {
+        $rol = $_SESSION['usuario']['id_rol'] ?? 0;
+        return in_array($rol, [ROL_ADMIN, ROL_JEFE]);
+    }
+
     public function crear()
     {
         verificarSesionActiva();
         $categorias = require RUTA_APP . '/config/categorias_evento.php';
+
+        /* 🔒 Solo Admin/Jefe */
+        if (!$this->esAdminOJefe()) {
+            redireccionar('/ContenidoControlador/inicio');   // sin permiso
+        }
 
         /* =============== 1. Formulario enviado =============== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -45,7 +57,7 @@ class PublicacionesControlador extends Controlador
 
             /* 1.2  Insertar publicación */
             $id_publicacion = $this->modelo->crear($datosPub);
-            
+
             if (!$id_publicacion) {
                 $_SESSION['errorPublicacion'] = 'No se pudo crear la publicación.';
                 redireccionar('/ContenidoControlador/inicio');
@@ -151,79 +163,78 @@ class PublicacionesControlador extends Controlador
     {
         verificarSesionActiva();
 
-        $usuario = $_SESSION['usuario'];
-        $publicacion = $this->modelo->obtenerPorId($id);
+        /* 🔒 Solo Admin / Jefe */
+        if (!$this->esAdminOJefe()) {
+            redireccionar('/ContenidoControlador/inicio');
+        }
 
-        /* ───────────────── Validaciones ───────────────── */
+        $publicacion = $this->modelo->obtenerPorId($id);
         if (!$publicacion) {
             $_SESSION['errorPublicacion'] = 'La publicación no existe.';
             redireccionar('/ContenidoControlador/inicio');
         }
 
-        $esAutor = $usuario['id'] == $publicacion->id_autor;
-        $rolPermitido = in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE]);
-
-        if (!$rolPermitido && !$esAutor) {
-            $_SESSION['errorPublicacion'] = 'No tienes permisos para eliminar esta publicación.';
-            redireccionar('/ContenidoControlador/inicio');
-        }
-
-        /* ───────────────── 1. Eliminar imágenes físicas ───────────────── */
+        /* 1. Borrar imágenes */
         if ($publicacion->imagen_destacada) {
             $this->eliminarImagenFisica($publicacion->imagen_destacada);
         }
-        $imgs = $this->modelo->obtenerImagenesPublicacion($id);
-        foreach ($imgs as $img) {
+        foreach ($this->modelo->obtenerImagenesPublicacion($id) as $img) {
             $this->eliminarImagenFisica($img->ruta_imagen);
         }
 
-        /* ───────────────── 2. Eliminar eventos vinculados ───────────────── */
+        /* 2. Borrar eventos */
         $eventoModelo = $this->modelo('EventoModelo');
-        $eventos = $eventoModelo->obtenerPorPublicacion($id);
-        foreach ($eventos as $ev) {
+        foreach ($eventoModelo->obtenerPorPublicacion($id) as $ev) {
             $eventoModelo->eliminar($ev->id_evento);
         }
 
-        /* ───────────────── 3. Eliminar notificaciones vinculadas ───────────────── */
+        /* 3. Borrar notificaciones */
         $this->notificacionModelo->eliminarPorReferencia($id);
 
-        /* ───────────────── 4. Eliminar la publicación ───────────────── */
+        /* 4. Borrar publicación */
         $this->modelo->eliminar($id);
 
-        /* ───────────────── 5. Éxito y redirección ───────────────── */
         $_SESSION['mensajeExito'] = 'Publicación eliminada correctamente.';
         redireccionar('/ContenidoControlador/inicio');
     }
 
 
+
     public function editar($id)
     {
         verificarSesionActiva();
-        $categorias = require RUTA_APP . '/config/categorias_evento.php';
 
-        $publicacion = $this->modelo->obtenerPorId($id);
-        if (!$publicacion) {
-            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
-            exit;
+        /* 🔒 Solo Admin / Jefe */
+        if (!$this->esAdminOJefe()) {
+            redireccionar('/ContenidoControlador/inicio');
         }
 
+        $categorias = require RUTA_APP . '/config/categorias_evento.php';
+        $publicacion = $this->modelo->obtenerPorId($id);
+
+        if (!$publicacion) {
+            redireccionar('/ContenidoControlador/inicio');
+        }
+
+        /* ------------- POST ------------- */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            /* Imagen destacada */
             $imagen_destacada = $publicacion->imagen_destacada;
 
-            $eliminarDestacada = isset($_POST['eliminar_imagen']) && $imagen_destacada;
-            if ($eliminarDestacada) {
+            if (isset($_POST['eliminar_imagen']) && $imagen_destacada) {
                 $this->eliminarImagenFisica($imagen_destacada);
                 $imagen_destacada = null;
             }
 
-            $nuevaImagen = $this->procesarImagen('imagen_destacada', 'pub_');
-            if ($nuevaImagen) {
-                if ($imagen_destacada && !$eliminarDestacada) {
+            $nuevaImg = $this->procesarImagen('imagen_destacada', 'pub_');
+            if ($nuevaImg) {
+                if ($imagen_destacada)
                     $this->eliminarImagenFisica($imagen_destacada);
-                }
-                $imagen_destacada = $nuevaImagen;
+                $imagen_destacada = $nuevaImg;
             }
 
+            /* Actualizar publicación */
             $this->modelo->actualizar([
                 'id_publicacion' => $id,
                 'titulo' => trim($_POST['titulo']),
@@ -233,17 +244,14 @@ class PublicacionesControlador extends Controlador
                 'imagen_destacada' => $imagen_destacada
             ]);
 
+            /* Imágenes adicionales */
             if (!empty($_POST['eliminar_imagenes'])) {
-                foreach ($_POST['eliminar_imagenes'] as $rutaImg) {
-                    $this->modelo->eliminarImagenAdicional($id, $rutaImg);
-                }
+                foreach ($_POST['eliminar_imagenes'] as $ruta)
+                    $this->modelo->eliminarImagenAdicional($id, $ruta);
             }
-
             $this->procesarImagenesAdicionales($id);
 
-            // ================================
-            // BLOQUE PARA EVENTO VINCULADO
-            // ================================
+            /* Evento vinculado */
             $eventoModelo = $this->modelo('EventoModelo');
             $evento = $eventoModelo->obtenerPorPublicacion($id)[0] ?? null;
 
@@ -269,25 +277,21 @@ class PublicacionesControlador extends Controlador
                 }
             }
 
-            // ================================
-
             $_SESSION['mensajeExito'] = 'Publicación actualizada correctamente.';
-            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
-            exit;
-        } else {
-            $imagenes_adicionales = $this->modelo->obtenerImagenesPublicacion($id);
-
-            // Incluir evento en la vista (si existe)
-            $eventoModelo = $this->modelo('EventoModelo');
-            $evento = $eventoModelo->obtenerPorPublicacion($id)[0] ?? null;
-            $publicacion->evento = $evento;
-
-            $this->vista('publicaciones/editar', [
-                'publicacion' => $publicacion,
-                'imagenes_adicionales' => $imagenes_adicionales
-            ]);
+            redireccionar('/ContenidoControlador/inicio');
         }
+
+        /* ------------- GET ------------- */
+        $imagenes_adicionales = $this->modelo->obtenerImagenesPublicacion($id);
+        $publicacion->evento = ($this->modelo('EventoModelo')
+            ->obtenerPorPublicacion($id)[0] ?? null);
+
+        $this->vista('publicaciones/editar', [
+            'publicacion' => $publicacion,
+            'imagenes_adicionales' => $imagenes_adicionales
+        ]);
     }
+
 
 
     // ==============================
@@ -382,8 +386,6 @@ class PublicacionesControlador extends Controlador
             exit;
         }
     }
-
-
 
     public function eliminarComentario($id_comentario)
     {

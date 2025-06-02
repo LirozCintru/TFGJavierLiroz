@@ -107,11 +107,11 @@
 
                     <?php
                     $usuario = $_SESSION['usuario'];
-                    if ($usuario['id'] == $publicacion->id_autor || in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])): ?>
+                    if (in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])): ?>
                         <div class="mt-3 text-end">
-                            <a href="<?= RUTA_URL . '/PublicacionesControlador/editar/' . $publicacion->id_publicacion ?>"
+                            <a href="<?= RUTA_URL ?>/PublicacionesControlador/editar/<?= $publicacion->id_publicacion ?>"
                                 class="btn btn-sm btn-outline-primary me-2">Editar</a>
-                            <a href="<?= RUTA_URL . '/PublicacionesControlador/eliminar/' . $publicacion->id_publicacion ?>"
+                            <a href="<?= RUTA_URL ?>/PublicacionesControlador/eliminar/<?= $publicacion->id_publicacion ?>"
                                 class="btn btn-sm btn-outline-danger"
                                 onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');">Eliminar</a>
                         </div>
