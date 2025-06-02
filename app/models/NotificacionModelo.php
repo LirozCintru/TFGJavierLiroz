@@ -11,14 +11,47 @@ class NotificacionModelo
     // 🔔 Crear nueva notificación
     public function crear($datos)
     {
-        $this->db->query("INSERT INTO notificaciones (id_usuario_destino, mensaje, tipo, id_referencia, leida) 
-                          VALUES (:id_usuario_destino, :mensaje, :tipo, :id_referencia, 0)");
+        /* 1. Insertar notificación */
+        $this->db->query("
+        INSERT INTO notificaciones
+            (id_usuario_destino, mensaje, tipo, id_referencia, leida)
+        VALUES
+            (:id_usuario_destino, :mensaje, :tipo, :id_referencia, 0)
+    ");
         $this->db->bind(':id_usuario_destino', $datos['id_usuario_destino']);
         $this->db->bind(':mensaje', $datos['mensaje']);
-        $this->db->bind(':tipo', $datos['tipo']);
-        $this->db->bind(':id_referencia', $datos['id_referencia']);
-        return $this->db->execute();
+        $this->db->bind(':tipo', $datos['tipo'] ?? null);
+        $this->db->bind(':id_referencia', $datos['id_referencia'] ?? null);
+        $this->db->execute();
+
+        /* 2. --> correo solo una vez por petición */
+        static $yaEnviado = [];
+        $uid = $datos['id_usuario_destino'];
+        if (isset($yaEnviado[$uid]))
+            return;
+        $yaEnviado[$uid] = true;
+
+        /* 3. totales pendientes */
+        $pendientes = $this->contarNoLeidas($uid);
+
+        /* 4. email destino */
+        $this->db->query("SELECT nombre, email FROM usuarios WHERE id_usuario = :id LIMIT 1");
+        $this->db->bind(':id', $uid);
+        $u = $this->db->registro();
+        if (!$u)
+            return;
+
+        /* 5. enviar */
+        Correo::enviarBonito(
+            $u->email,
+            "🔔 Tienes $pendientes notificación(es) en IntraLink",
+            "Hola <strong>" . htmlspecialchars($u->nombre) . "</strong>,<br><br>
+         Tienes <strong>$pendientes</strong> notificación(es) sin leer en IntraLink.",
+            "Ver notificaciones",
+            RUTA_URL . "/NotificacionesControlador/index"
+        );
     }
+
 
     // 📬 Obtener TODAS (leídas y no leídas)
     public function obtenerTodas($id_usuario)
@@ -97,4 +130,16 @@ class NotificacionModelo
         $this->db->bind(':id', $id_autor);
         return $this->db->registros();
     }
+
+    /*─────────────────────────────────────────────
+ | Elimina todas las notificaciones cuya
+ | id_referencia apunta a la publicación dada
+ *────────────────────────────────────────────*/
+    public function eliminarPorReferencia($id_publicacion)
+    {
+        $this->db->query("DELETE FROM notificaciones WHERE id_referencia = :id");
+        $this->db->bind(':id', $id_publicacion);
+        return $this->db->execute();
+    }
+
 }

@@ -68,12 +68,18 @@
 
         <!-- ⚙️ Botones derechos -->
         <div class="d-flex align-items-center gap-2">
-          <?php if ($usuario['id_rol'] == 1):
+          <?php if ($usuario['id_rol'] == 1): ?>
+            <?php
             $esUsuarios = str_contains($rutaActual, '/UsuariosControlador');
-            $claseBoton = $esUsuarios ? 'btn-primary text-white' : 'btn-outline-secondary';
+            $esDepartamentos = str_contains($rutaActual, '/DepartamentoControlador');
+            $claseUsuarios = $esUsuarios ? 'btn-primary text-white' : 'btn-outline-secondary';
+            $claseDepartamentos = $esDepartamentos ? 'btn-primary text-white' : 'btn-outline-secondary';
             ?>
-            <a href="<?= RUTA_URL ?>/UsuariosControlador/index" class="btn <?= $claseBoton ?> btn-sm">
+            <a href="<?= RUTA_URL ?>/UsuariosControlador/index" class="btn <?= $claseUsuarios ?> btn-sm">
               👥Usuarios
+            </a>
+            <a href="<?= RUTA_URL ?>/DepartamentoControlador/index" class="btn <?= $claseDepartamentos ?> btn-sm">
+              🏢Departamentos
             </a>
           <?php endif; ?>
 
@@ -82,5 +88,4 @@
           </a>
         </div>
 
-      </div>
     </nav>

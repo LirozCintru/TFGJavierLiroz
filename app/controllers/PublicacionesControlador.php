@@ -30,63 +30,77 @@ class PublicacionesControlador extends Controlador
         verificarSesionActiva();
         $categorias = require RUTA_APP . '/config/categorias_evento.php';
 
+        /* =============== 1. Formulario enviado =============== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $datos = [
+
+            /* 1.1  Datos de la publicación */
+            $datosPub = [
                 'titulo' => trim($_POST['titulo']),
                 'contenido' => trim($_POST['contenido']),
-                'tipo' => $_POST['tipo'],
+                'tipo' => $_POST['tipo'],                           // Urgente / Departamento / General
                 'id_autor' => $_SESSION['usuario']['id'],
                 'id_departamento' => $_SESSION['usuario']['id_departamento'],
                 'imagen_destacada' => $this->procesarImagen('imagen_destacada', 'pub_')
             ];
 
-            $id_publicacion = $this->modelo->crear($datos);
-
+            /* 1.2  Insertar publicación */
+            $id_publicacion = $this->modelo->crear($datosPub);
+            
             if (!$id_publicacion) {
                 $_SESSION['errorPublicacion'] = 'No se pudo crear la publicación.';
-                header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
-                exit;
+                redireccionar('/ContenidoControlador/inicio');
             }
 
+            /* 1.3  Guardar imágenes adicionales */
             $this->procesarImagenesAdicionales($id_publicacion);
 
-            // =========================
-            // 🔔 Generar notificación
-            // =========================
-            $notificacionModelo = $this->modelo('NotificacionModelo');
+            /* =========================
+               2. Notificaciones publicación
+               ========================= */
+            if (strtolower($datosPub['tipo']) === 'urgente') {
 
-            // Si la publicación es urgente o de tipo departamento, enviar notificaciones
-            if (strtolower($_POST['tipo']) === 'urgente') { 
-                $usuarios = $notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
+                $usuarios = $this->notificacionModelo
+                    ->obtenerTodosMenos($_SESSION['usuario']['id']);
 
-                foreach ($usuarios as $usuario) {
-                    $notificacionModelo->crear([
-                        'id_usuario_destino' => $usuario->id_usuario,
-                        'mensaje' => '📢 Nueva publicación urgente: "' . $datos['titulo'] . '"',
+                foreach ($usuarios as $u) {
+                    $this->notificacionModelo->crear([
+                        'id_usuario_destino' => $u->id_usuario,
+                        'mensaje' => '📢 Nueva publicación urgente: "' . $datosPub['titulo'] . '"',
                         'tipo' => 'urgente',
                         'id_referencia' => $id_publicacion
                     ]);
                 }
 
-          } elseif ($_POST['tipo'] === 'departamento') {
-                $usuarios = $notificacionModelo->obtenerPorDepartamento($_SESSION['usuario']['id_departamento'], $_SESSION['usuario']['id']);
+            } elseif ($datosPub['tipo'] === 'departamento') {
 
-                foreach ($usuarios as $usuario) {
-                    $notificacionModelo->crear([
-                        'id_usuario_destino' => $usuario->id_usuario,
-                        'mensaje' => '🗂 Nueva publicación para tu departamento: "' . $datos['titulo'] . '"',
+                $usuarios = $this->notificacionModelo
+                    ->obtenerPorDepartamento(
+                        $_SESSION['usuario']['id_departamento'],
+                        $_SESSION['usuario']['id']
+                    );
+
+                foreach ($usuarios as $u) {
+                    $this->notificacionModelo->crear([
+                        'id_usuario_destino' => $u->id_usuario,
+                        'mensaje' => '🗂 Nueva publicación para tu departamento: "' . $datosPub['titulo'] . '"',
                         'tipo' => 'departamento',
                         'id_referencia' => $id_publicacion
                     ]);
                 }
             }
 
-
-
-            // Si hay evento
-            if (!empty($_POST['activar_evento']) && !empty($_POST['evento_titulo']) && !empty($_POST['evento_fecha'])) {
+            /* =========================
+               3. Evento vinculado (opcional)
+               ========================= */
+            $evento_id = null;
+            if (
+                !empty($_POST['activar_evento']) &&
+                !empty($_POST['evento_titulo']) &&
+                !empty($_POST['evento_fecha'])
+            ) {
                 $eventoModelo = $this->modelo('EventoModelo');
-                $eventoModelo->crear([
+
+                $evento_id = $eventoModelo->crear([
                     'titulo' => trim($_POST['evento_titulo']),
                     'descripcion' => trim($_POST['evento_descripcion']),
                     'fecha' => $_POST['evento_fecha'],
@@ -96,21 +110,21 @@ class PublicacionesControlador extends Controlador
                     'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
                     'url' => $_POST['evento_url'] ?? null,
                     'color' => $categorias[$_POST['evento_categoria']]['color'] ?? '#0d6efd',
+                    'categoria' => $_POST['evento_categoria'] ?? 'general',
                     'id_departamento' => $_SESSION['usuario']['id_departamento'],
-                    'id_publicacion' => $id_publicacion,
-                    'categoria' => $_POST['evento_categoria'] ?? 'general'
+                    'id_publicacion' => $id_publicacion
                 ]);
-                // 🔔 Notificar si hay evento vinculado
-                if (!empty($evento_id)) {
-                    $usuariosDestino = [];
 
-                    if ($_POST['tipo'] === 'departamento') {
-                        $usuariosDestino = $this->notificacionModelo->obtenerPorDepartamento($_SESSION['usuario']['id_departamento'], $_SESSION['usuario']['id']);
-                    } else {
-                        $usuariosDestino = $this->notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
-                    }
+                /* 3.1  Notificación por evento */
+                if ($evento_id) {
+                    $destinos = ($datosPub['tipo'] === 'departamento')
+                        ? $this->notificacionModelo->obtenerPorDepartamento(
+                            $_SESSION['usuario']['id_departamento'],
+                            $_SESSION['usuario']['id']
+                        )
+                        : $this->notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
 
-                    foreach ($usuariosDestino as $u) {
+                    foreach ($destinos as $u) {
                         $this->notificacionModelo->crear([
                             'id_usuario_destino' => $u->id_usuario,
                             'mensaje' => '📅 Nueva publicación con evento programado.',
@@ -119,37 +133,68 @@ class PublicacionesControlador extends Controlador
                         ]);
                     }
                 }
-
             }
 
+            /* 4. Éxito */
             $_SESSION['mensajeExito'] = 'Publicación creada correctamente.';
-            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
+            redireccionar('/ContenidoControlador/inicio');
+
+            /* =============== 2. Primera carga del formulario =============== */
         } else {
             $this->vista('publicaciones/crear');
         }
     }
 
 
+
     public function eliminar($id)
     {
         verificarSesionActiva();
+
         $usuario = $_SESSION['usuario'];
         $publicacion = $this->modelo->obtenerPorId($id);
 
+        /* ───────────────── Validaciones ───────────────── */
         if (!$publicacion) {
             $_SESSION['errorPublicacion'] = 'La publicación no existe.';
-        } elseif (
-            in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE]) &&
-            $usuario['id'] == $publicacion->id_autor
-        ) {
-            $this->modelo->eliminar($id);
-            $_SESSION['mensajeExito'] = 'Publicación eliminada correctamente.';
-        } else {
-            $_SESSION['errorPublicacion'] = 'No tienes permisos para eliminar esta publicación.';
+            redireccionar('/ContenidoControlador/inicio');
         }
 
-        header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
+        $esAutor = $usuario['id'] == $publicacion->id_autor;
+        $rolPermitido = in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE]);
+
+        if (!$rolPermitido && !$esAutor) {
+            $_SESSION['errorPublicacion'] = 'No tienes permisos para eliminar esta publicación.';
+            redireccionar('/ContenidoControlador/inicio');
+        }
+
+        /* ───────────────── 1. Eliminar imágenes físicas ───────────────── */
+        if ($publicacion->imagen_destacada) {
+            $this->eliminarImagenFisica($publicacion->imagen_destacada);
+        }
+        $imgs = $this->modelo->obtenerImagenesPublicacion($id);
+        foreach ($imgs as $img) {
+            $this->eliminarImagenFisica($img->ruta_imagen);
+        }
+
+        /* ───────────────── 2. Eliminar eventos vinculados ───────────────── */
+        $eventoModelo = $this->modelo('EventoModelo');
+        $eventos = $eventoModelo->obtenerPorPublicacion($id);
+        foreach ($eventos as $ev) {
+            $eventoModelo->eliminar($ev->id_evento);
+        }
+
+        /* ───────────────── 3. Eliminar notificaciones vinculadas ───────────────── */
+        $this->notificacionModelo->eliminarPorReferencia($id);
+
+        /* ───────────────── 4. Eliminar la publicación ───────────────── */
+        $this->modelo->eliminar($id);
+
+        /* ───────────────── 5. Éxito y redirección ───────────────── */
+        $_SESSION['mensajeExito'] = 'Publicación eliminada correctamente.';
+        redireccionar('/ContenidoControlador/inicio');
     }
+
 
     public function editar($id)
     {

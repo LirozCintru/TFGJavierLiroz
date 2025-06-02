@@ -1,4 +1,4 @@
-<?php require RUTA_APP . '/views/inc/header.php';
+<?php require RUTA_APP . '/views/inc/headermain.php';
 $categorias = require RUTA_APP . '/config/categorias_evento.php';
 ?>
 

@@ -65,7 +65,7 @@ class PublicacionModelo
             $sql .= " AND p.id_departamento = :filtro_departamento";
         }
 
-       
+
         $this->db->query($sql);
 
         //
@@ -89,38 +89,50 @@ class PublicacionModelo
     }
 
 
+    // PublicacionModelo::obtenerPorId($id)
     public function obtenerPorId($id)
     {
-        $this->db->query("SELECT * FROM publicaciones WHERE id_publicacion = :id");
+        $this->db->query("
+        SELECT p.*,
+               u.nombre AS autor,                   -- ← alias autor
+               d.nombre AS nombre_departamento
+        FROM publicaciones p
+        LEFT JOIN usuarios      u ON u.id_usuario      = p.id_autor
+        LEFT JOIN departamentos d ON d.id_departamento = p.id_departamento
+        WHERE p.id_publicacion = :id
+        LIMIT 1
+    ");
         $this->db->bind(':id', $id);
         return $this->db->registro();
     }
 
+
+
     public function crear($datos)
     {
+        /* 1. Insertar la publicación */
         $this->db->query("
-            INSERT INTO publicaciones 
+        INSERT INTO publicaciones
             (titulo, contenido, tipo, id_autor, id_departamento, imagen_destacada)
-            VALUES (:titulo, :contenido, :tipo, :id_autor, :id_departamento, :imagen_destacada)
-        ");
-
-        $this->bindDatosPublicacion($datos);
-        $this->db->bind(':id_autor', $datos['id_autor']);
-        $this->db->execute();
-
-        // Obtener último ID insertado por ese autor y título
-        $this->db->query("
-            SELECT id_publicacion 
-            FROM publicaciones 
-            WHERE id_autor = :id_autor AND titulo = :titulo 
-            ORDER BY id_publicacion DESC LIMIT 1
-        ");
-        $this->db->bind(':id_autor', $datos['id_autor']);
+        VALUES
+            (:titulo, :contenido, :tipo, :autor, :dep, :img)
+    ");
         $this->db->bind(':titulo', $datos['titulo']);
+        $this->db->bind(':contenido', $datos['contenido']);
+        $this->db->bind(':tipo', $datos['tipo']);
+        $this->db->bind(':autor', $datos['id_autor']);
+        $this->db->bind(':dep', $datos['id_departamento']);
+        $this->db->bind(':img', $datos['imagen_destacada']);
+        $this->db->execute();                // ← se hace el INSERT
 
-        $row = $this->db->registro();
-        return $row ? $row->id_publicacion : null;
+        /* 2. Recuperar el autoincrement de ESTA inserción */
+        $this->db->query("SELECT LAST_INSERT_ID() AS id_pub"); // misma conexión ⇒ id correcto
+        $row = $this->db->registro();                           // ejecuta y trae la fila
+
+        return $row ? (int) $row->id_pub : null;                 //  ← aquí devuelves el id
     }
+
+
 
     public function actualizar($datos)
     {
