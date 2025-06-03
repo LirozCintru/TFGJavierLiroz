@@ -355,3 +355,12 @@ body {
 
 /* Título del calendario */
 
+/*--Publicacion*/
+.publication-card .badge.bg-light {
+    font-size: .75rem;
+    border-radius: .4rem;
+}
+.publication-img {
+    object-fit: cover;
+    height: 240px;      /* recorta alturas dispares */
+}

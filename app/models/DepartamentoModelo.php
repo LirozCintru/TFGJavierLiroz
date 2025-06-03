@@ -10,8 +10,12 @@ class DepartamentoModelo
 
     public function obtenerTodos()
     {
-        $this->db->query("SELECT * FROM departamentos ORDER BY nombre");
-        return $this->db->registros();
+        $this->db->query("
+            SELECT id_departamento, nombre
+            FROM departamentos
+            ORDER BY nombre
+        ");
+        return $this->db->registros();   
     }
 
     public function obtenerPorId($id)

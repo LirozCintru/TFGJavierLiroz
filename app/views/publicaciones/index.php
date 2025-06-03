@@ -37,6 +37,12 @@
                             <?php if (!empty($publicacion->evento)): ?>
                                 <i class="bi bi-calendar-event text-primary ms-2" title="Tiene evento vinculado"></i>
                             <?php endif; ?>
+                            <?php if (!empty($publicacion->nombre_departamento)): ?>
+                                <span class="badge bg-light text-dark border ms-2">
+                                    <?= htmlspecialchars($publicacion->nombre_departamento) ?>
+                                </span>
+                            <?php endif; ?>
+                        </h5>
                         </h5>
                         <p class="text-muted small mb-2">
                             <?= date('d/m/Y H:i', strtotime($publicacion->fecha)) ?> |
@@ -49,7 +55,6 @@
                 </div>
 
                 <p class="card-text text-muted"><?= $resumen ?></p>
-
                 <div class="text-end">
                     <button class="btn btn-sm btn-link toggle-detalle text-decoration-none text-primary"
                         data-target="detalle-<?= $publicacion->id_publicacion ?>">

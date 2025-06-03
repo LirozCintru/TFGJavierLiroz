@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Intralink</title>
+  <title>IntraLink</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="<?php echo RUTA_URL ?>/public/css/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="<?php echo RUTA_URL ?>/public/css/main.css" rel="stylesheet" />
@@ -14,8 +14,8 @@
 
 <body>
   <?php
-  require(RUTA_APP . '/librerias/Funciones.php');
-
+  require RUTA_APP . '/librerias/Funciones.php';
+  verificarSesionActiva();
   $usuario = $_SESSION['usuario'];
   $fotoPerfil = $usuario['imagen'] ?? 'default.png';
   $rutaFoto = RUTA_URL . '/public/img/usuarios/' . $fotoPerfil;
@@ -23,9 +23,8 @@
   ?>
 
   <div class="container-fluid p-0">
-    <nav class="navbar navbar-expand-lg bg-light border-bottom px-4 py-3">
+    <nav class="navbar navbar-expand-lg bg-light bg-gradient border-bottom px-4 py-3">
       <div class="container-fluid d-flex justify-content-between align-items-center">
-
         <!-- 🧑 Usuario a la izquierda -->
         <div class="d-flex align-items-center gap-2">
           <img src="<?= $rutaFoto ?>" alt="Usuario" width="64" height="64" class="rounded-circle border border-2" />
@@ -48,20 +47,29 @@
             </a>
           </li>
 
-
           <li class="nav-item">
             <a class="nav-link px-2 <?= str_contains($rutaActual, '/PerfilControlador/editar') ? 'activa' : '' ?>"
               href="<?= RUTA_URL ?>/PerfilControlador/editar">
-              👤Mi perfil
+              👤 Mi perfil
             </a>
           </li>
 
           <li class="nav-item position-relative">
             <a class="nav-link px-2 position-relative" href="#" id="notificaciones-link">
-              <i class="bi bi-bell" style="font-size: 1.5rem;"></i>
+              <i class="bi bi-bell" style="font-size:1.5rem;"></i>
               <span id="contador-notificaciones"
                 class="position-absolute top-0 start-100 badge rounded-pill bg-danger d-none"
-                style="transform: translate(-50%, 30%); font-size: 0.7rem;"></span>
+                style="transform: translate(-50%, 30%); font-size:0.7rem;"></span>
+            </a>
+          </li>
+
+          <!-- Icono de chat (el badge se actualizará desde chat.js) -->
+          <li class="nav-item position-relative">
+            <a id="chat-link" class="nav-link px-2" href="<?= RUTA_URL ?>/ChatControlador/index">
+              <i class="bi bi-chat-dots" style="font-size:1.5rem;"></i>
+              <span id="badge-chat"
+                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                style="font-size:0.7rem;">0</span>
             </a>
           </li>
         </ul>
@@ -76,10 +84,10 @@
             $claseDepartamentos = $esDepartamentos ? 'btn-primary text-white' : 'btn-outline-secondary';
             ?>
             <a href="<?= RUTA_URL ?>/UsuariosControlador/index" class="btn <?= $claseUsuarios ?> btn-sm">
-              👥Usuarios
+              👥 Usuarios
             </a>
             <a href="<?= RUTA_URL ?>/DepartamentoControlador/index" class="btn <?= $claseDepartamentos ?> btn-sm">
-              🏢Departamentos
+              🏢 Departamentos
             </a>
           <?php endif; ?>
 
@@ -87,5 +95,7 @@
             Cerrar sesión
           </a>
         </div>
-
+      </div>
     </nav>
+  </div>
+  <!-- IMPORTANTE: aquí cerramos el div de container-fluid -->

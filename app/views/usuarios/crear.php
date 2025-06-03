@@ -4,11 +4,11 @@
     <div class="position-relative rounded-4 overflow-hidden shadow tarjeta-editar-usuario border border-2">
 
         <!-- Franja azul decorativa -->
-        <div class="position-absolute top-0 start-0 h-100" style="width: 6px; background-color: #0b5ed7;"></div>
+        <!-- <div class="position-absolute top-0 start-0 h-100" style="width: 6px; background-color: #0b5ed7;"></div> -->
 
         <!-- Cabecera -->
-        <div class="encabezado-edicion text-white px-4 py-3">
-            <h5 class="titulo-edicion"><i class="bi bi-person-plus-fill me-2"></i>Crear usuario</h5>
+        <div class="encabezado-edicion  bg-success text-white px-4 py-3">
+            <h5 class="titulo-edicion text-white"><i class="bi bi-person-plus-fill me-2"></i>Crear usuario</h5>
         </div>
 
         <div class="p-4 bg-white">
@@ -85,7 +85,7 @@
                 <div class="d-flex justify-content-between">
                     <a href="<?= RUTA_URL ?>/UsuariosControlador/index" class="btn btn-outline-secondary rounded-pill">←
                         Cancelar</a>
-                    <button type="submit" class="btn btn-primary rounded-pill">Crear usuario</button>
+                    <button type="submit" class="btn btn-success rounded-pill">Crear usuario</button>
                 </div>
             </form>
         </div>

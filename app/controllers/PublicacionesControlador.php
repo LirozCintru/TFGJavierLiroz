@@ -7,7 +7,7 @@ class PublicacionesControlador extends Controlador
     private $modelo;
     private $comentarioModelo;
     private $notificacionModelo;
-
+    private $departamentoModelo;
 
 
     public function __construct()
@@ -15,6 +15,7 @@ class PublicacionesControlador extends Controlador
         $this->modelo = $this->modelo('PublicacionModelo');
         $this->comentarioModelo = $this->modelo('ComentarioModelo');
         $this->notificacionModelo = $this->modelo('NotificacionModelo');
+        $this->departamentoModelo = $this->modelo('DepartamentoModelo');
     }
 
 
@@ -32,6 +33,11 @@ class PublicacionesControlador extends Controlador
         return in_array($rol, [ROL_ADMIN, ROL_JEFE]);
     }
 
+    private function listaDepartamentos(): array
+    {
+        return $this->departamentoModelo->obtenerTodos();   // id_departamento, nombre
+    }
+
     public function crear()
     {
         verificarSesionActiva();
@@ -46,12 +52,19 @@ class PublicacionesControlador extends Controlador
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /* 1.1  Datos de la publicación */
+            $depSolicitado = (int) ($_POST['id_departamento'] ?? 0);
+
             $datosPub = [
                 'titulo' => trim($_POST['titulo']),
                 'contenido' => trim($_POST['contenido']),
-                'tipo' => $_POST['tipo'],                           // Urgente / Departamento / General
+                'tipo' => $_POST['tipo'],
                 'id_autor' => $_SESSION['usuario']['id'],
-                'id_departamento' => $_SESSION['usuario']['id_departamento'],
+
+                // ⭐️ Selección segura del departamento:
+                'id_departamento' => ($_SESSION['usuario']['id_rol'] == ROL_ADMIN)
+                    ? $depSolicitado                      // Admin escoge cualquiera
+                    : $_SESSION['usuario']['id_departamento'], // Jefe → el suyo
+
                 'imagen_destacada' => $this->procesarImagen('imagen_destacada', 'pub_')
             ];
 
@@ -153,7 +166,9 @@ class PublicacionesControlador extends Controlador
 
             /* =============== 2. Primera carga del formulario =============== */
         } else {
-            $this->vista('publicaciones/crear');
+            $this->vista('publicaciones/crear', [
+                'departamentos' => $this->listaDepartamentos()
+            ]);
         }
     }
 
@@ -198,8 +213,6 @@ class PublicacionesControlador extends Controlador
         redireccionar('/ContenidoControlador/inicio');
     }
 
-
-
     public function editar($id)
     {
         verificarSesionActiva();
@@ -240,7 +253,11 @@ class PublicacionesControlador extends Controlador
                 'titulo' => trim($_POST['titulo']),
                 'contenido' => trim($_POST['contenido']),
                 'tipo' => $_POST['tipo'],
-                'id_departamento' => $_SESSION['usuario']['id_departamento'],
+
+                'id_departamento' => ($_SESSION['usuario']['id_rol'] == ROL_ADMIN)
+                    ? (int) ($_POST['id_departamento'] ?? 0)
+                    : $_SESSION['usuario']['id_departamento'],
+
                 'imagen_destacada' => $imagen_destacada
             ]);
 
@@ -288,7 +305,8 @@ class PublicacionesControlador extends Controlador
 
         $this->vista('publicaciones/editar', [
             'publicacion' => $publicacion,
-            'imagenes_adicionales' => $imagenes_adicionales
+            'imagenes_adicionales' => $imagenes_adicionales,
+            'departamentos' => $this->listaDepartamentos()
         ]);
     }
 
@@ -409,6 +427,8 @@ class PublicacionesControlador extends Controlador
         header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
     }
+
+
 
 
 

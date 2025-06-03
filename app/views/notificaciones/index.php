@@ -111,6 +111,8 @@
 
 </div>
 
+<?php require RUTA_APP . '/views/inc/footer.php'; ?>
+
 <style>
     .list-group-item {
         transition: background-color 0.2s ease, box-shadow 0.2s ease;

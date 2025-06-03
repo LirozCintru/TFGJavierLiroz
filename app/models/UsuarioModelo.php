@@ -171,6 +171,55 @@ class UsuarioModelo
         return $this->db->registro();
     }
 
+    public function obtenerTodosMenos(int $id_excluido)
+    {
+        $this->db->query("
+        SELECT id_usuario, nombre, imagen
+        FROM usuarios
+        WHERE id_usuario <> :id
+          AND activo = 1
+        ORDER BY nombre
+    ");
+        $this->db->bind(':id', $id_excluido);
+        return $this->db->registros();
+    }
+
+    /**
+     * Devuelve usuarios activos distintos de $miId, filtrados opcionalmente
+     * por nombre (LIKE) y/o por departamento.
+     */
+    public function buscar(int $miId, ?string $filtroNombre = null, ?int $filtroDepartamento = null): array
+    {
+        $sql = "
+            SELECT id_usuario, nombre, imagen, id_departamento
+            FROM usuarios
+            WHERE id_usuario <> :miId
+              AND activo = 1
+        ";
+
+        if (!empty($filtroNombre)) {
+            $sql .= " AND nombre LIKE :fnombre ";
+        }
+        if ($filtroDepartamento !== null && $filtroDepartamento > 0) {
+            $sql .= " AND id_departamento = :fdep ";
+        }
+
+        $sql .= " ORDER BY nombre ";
+
+        $this->db->query($sql);
+        $this->db->bind(':miId', $miId);
+
+        if (!empty($filtroNombre)) {
+            $this->db->bind(':fnombre', '%' . $filtroNombre . '%');
+        }
+        if ($filtroDepartamento !== null && $filtroDepartamento > 0) {
+            $this->db->bind(':fdep', $filtroDepartamento);
+        }
+
+        $filas = $this->db->registros();
+        return is_array($filas) ? $filas : [];
+    }
+
 
 
 

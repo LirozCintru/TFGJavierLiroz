@@ -125,7 +125,7 @@ $contador = count($comentarios);
     </div>
 
     <div class="mt-4 text-end">
-        <a href="<?= RUTA_URL ?>/ContenidoControlador/inicio" class="btn btn-outline-secondary">← Volver</a>
+        <a href="<?= RUTA_URL ?>/NotificacionesControlador/inicio" class="btn btn-outline-secondary">← Volver</a>
     </div>
 </div>
 
