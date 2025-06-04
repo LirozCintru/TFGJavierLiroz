@@ -134,6 +134,7 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
             },
+
             events: '<?= RUTA_URL ?>/EventosControlador/obtener',
 
             eventClick: function (info) {

@@ -17,7 +17,7 @@
    1) Fondo de la navbar en un azul-grisáceo claro
 ────────────────────────────────────────────────────────────── */
     .navbar {
-      background-color: rgba(100, 115, 135, 0.85) !important;
+      background-color: rgba(100, 115, 135, 0.65) !important;
       /* Azul-grisáceo algo más claro */
     }
 
@@ -40,35 +40,49 @@
    4) Enlaces centrales (Inicio, Calendario, Mi perfil)
 ────────────────────────────────────────────────────────────── */
     .navbar .nav-link {
-      color: #e9ecef !important;
-      /* Blanco muy claro */
+      color: #ffffff !important;
       font-size: 1rem;
       padding: 0.4rem 0.6rem;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
     }
 
     .navbar .nav-link:hover {
-      color: #d6e100 !important;
-      /* Azul claro al pasar */
+      background-color: rgba(255, 255, 255, 0.65);
+      /* Más visible */
+      color: rgb(0, 92, 183) !important;
+      /* Sin cambio de color */
+      border-radius: 18px;
     }
 
-    .navbar .nav-link.activa {
-      color: #d6e100 !important;
+    /* .navbar .nav-link.activa {
+      background-color: rgba(77, 184, 255, 0.56);
+      color: #ffffff !important;
       font-weight: 600;
-      border-bottom: 2px solid #d6e100;
+      border-bottom: 2px solidrgb(0, 106, 177);
+      border-radius: 18px;
+    } */
+
+    .navbar .nav-link.activa {
+      background-color: rgba(255, 255, 255, 0.65);
+      color: rgb(0, 92, 183) !important;
+      font-weight: 600;
+      border-bottom: 2px solidrgb(0, 106, 177);
+      border-radius: 18px;
+      letter-spacing: 0.2px;
     }
 
     /* ──────────────────────────────────────────────────────────────
    5) Iconos de notificaciones y chat: blancos nítidos
 ────────────────────────────────────────────────────────────── */
     .navbar .nav-item .bi {
-      color: #f1f1f1;
+      color: rgb(255, 255, 255);
       font-size: 1.5rem;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
     }
 
-    .navbar .nav-item .bi:hover {
-      color: #d6e100 !important;
+    .navbar .nav-item:hover .bi {
+      color: rgb(219, 37, 0) !important;
+      border-radius: 25px !important;
     }
 
     /* ──────────────────────────────────────────────────────────────
@@ -88,25 +102,29 @@
       - Activo en azul cielo
 ────────────────────────────────────────────────────────────── */
     .navbar .btn-outline-secondary {
-      color: rgb(0, 0, 0);
+      color: rgb(255, 255, 255);
       border-color: #e9ecef;
-      background-color: transparent;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      background-color: rgba(131, 172, 213, 0.7) !important;
+      transition: all 0.2s ease;
       padding: 0.35rem 0.75rem;
 
     }
 
     .navbar .btn-outline-secondary:hover {
-      background-color: rgba(54, 156, 211, 0.67);
-      color: #ffffff;
+      background-color: rgb(41, 148, 255) !important;
+      color: rgb(0, 0, 0);
       border-color: #ffffff;
     }
 
     .navbar .btn-primary,
     .navbar .btn-primary:hover {
-      color: #ffffff !important;
-      background-color: #4a9dee !important;
-      border-color: #4a9dee !important;
+      color: rgb(0, 0, 0) !important;
+      background-color: rgb(41, 148, 255) !important;
+      border: 1px rgb(255, 255, 255) solid !important;
+      padding: 0.35rem 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+
     }
 
     /* ──────────────────────────────────────────────────────────────
@@ -118,16 +136,16 @@
       /* blanco suave */
       border: 1px solid #f1f1f1;
       /* borde blanco */
-      background-color: transparent;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      background-color: rgb(221, 95, 95);
+      transition: all 0.2s ease;
       padding: 0.35rem 0.75rem;
     }
 
     .navbar .btn-cerrar-sesion:hover {
-      background-color: #e03131;
+      background-color: rgb(255, 0, 0) !important;
       /* rojo vivo al pasar */
-      color: #ffffff;
-      border-color: #e03131;
+      color:rgb(0, 0, 0);
+      
     }
   </style>
 </head>
