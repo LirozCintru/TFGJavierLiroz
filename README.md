@@ -1,6 +1,6 @@
 # IntraLink 🚀
 
-**IntraLink** es una plataforma web de comunicación interna diseñada para empresas. Permite centralizar la información relevante de cada departamento, mejorar la comunicación entre empleados y facilitar la organización interna mediante publicaciones, chats privados y un calendario de eventos corporativos.
+**IntraLink** es una plataforma web de comunicación interna diseñada para empresas. Permite a los empleados recibir avisos, noticias y eventos relevantes de forma centralizada, así como interactuar mediante comentarios, reacciones y un sistema de chat en tiempo real. Además, cuenta con un calendario de eventos y un panel de administración para gestionar usuarios, departamentos, roles y permisos.
 
 ---
 
@@ -8,10 +8,9 @@
 
 - 🔔 **Publicaciones y Avisos** segmentados por tipo (general, urgente, departamental).
 - 💬 **Comentarios y Reacciones** con menciones entre usuarios.
-- 📩 **Chat Privado y Grupal** con notificaciones en tiempo real.
+- 📩 **Chat Privado** con notificaciones en tiempo real.
 - 📅 **Calendario de Eventos** con recordatorios automáticos.
 - 🛠️ **Panel de Administración** para gestionar empleados, roles y permisos.
-- 🌙 **Modo oscuro** y diseño responsivo con soporte PWA.
 
 ---
 
@@ -28,66 +27,30 @@ TFGJavierLiroz/
 
 ---
 
-## ⚙️ Tecnologías Utilizadas
+## 📦 Tecnologías utilizadas
 
-### 🔧 Backend
-- PHP
-- MySQL
-- JWT (JSON Web Tokens)
-- WebSockets
+- **Backend**
+  - PHP
+  - MySQL
+  - MVC propio (sin framework externo)
+  - AJAX / Fetch API para interacciones sin recarga
+- **Frontend**
+  - HTML5 & CSS3
+  - Bootstrap 5 para estilos y diseño responsivo
+  - Bootstrap Icons & Font Awesome
+  - JavaScript (vanilla) para lógica de UI (chat en tiempo real, scroll, filtrado, etc.)
 
-### 🎨 Frontend
-- React
-- TailwindCSS / Bootstrap
-- JavaScript (ES6+)
-- HTML5 + CSS3
+## 🔧 Requisitos previos
 
----
-
-## 🚀 Instalación Local
-
-### Requisitos Previos
-
-- PHP 7.x o superior
-- MySQL / MariaDB
-- Node.js + npm
-- Servidor local (recomendado: AMPPS, XAMPP o Laragon)
-
-### Clonar el repositorio
-
-```bash
-git clone https://github.com/LirozCintru/TFGJavierLiroz.git
-cd TFGJavierLiroz
-```
-
-### Backend
-
-1. Configura la base de datos desde `/database/init.sql`.
-2. Establece tus variables de entorno en un archivo `.env` o `config.php`.
-3. Coloca la carpeta `backend/` en el servidor local (ej: `www/` de AMPPS o XAMPP).
-4. Accede vía navegador a `http://localhost/backend`.
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
----
-
-## ✅ Estado del Proyecto
-
-✅ Desarrollo completo de funcionalidades principales  
-🧪 Pruebas unitarias en proceso  
-📦 Preparado para despliegue
-
----
+1. **Servidor web** con soporte PHP 7.4+ (Apache, Nginx, etc.).
+2. **Base de datos MySQL** (o MariaDB).
+3. **Extensiones PHP**: pdo_mysql, mbstring, json, fileinfo.
+4. **Composer** (opcional, sólo si se añaden dependencias externas).
+5. Navegador moderno (Chrome, Firefox, Edge, Safari).
 
 ## 👤 Autor
 
-**Javier Liroz Cintruénigo**  
+**Javier Liroz Trincado**  
 Proyecto Final - Ciclo Superior de Desarrollo de Aplicaciones Web  
 Curso 2024/2025
 
