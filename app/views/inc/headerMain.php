@@ -25,15 +25,16 @@
    2) Imagen de perfil: borde blanco nítido
 ────────────────────────────────────────────────────────────── */
     .navbar img.rounded-circle.border {
-      border: 2px solid #ffffff;
+      border: 2px solid #ffffff !important;
     }
 
     /* ──────────────────────────────────────────────────────────────
    3) Nombre de usuario (izquierda): texto casi blanco
 ────────────────────────────────────────────────────────────── */
     .navbar .d-flex.align-items-center span {
-      color: #f1f1f1 !important;
+      color: rgb(35, 35, 35) !important;
       font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     /* ──────────────────────────────────────────────────────────────
@@ -90,10 +91,10 @@
 ────────────────────────────────────────────────────────────── */
     #contador-notificaciones,
     #badge-chat {
-      font-size: 0.7rem;
-      padding: 3px 6px;
+      font-size: 0.8rem;
+      padding: 4px 6px;
       background-color: #e03131;
-      color: #ffffff;
+      color: #ffffff !important;
     }
 
     /* ──────────────────────────────────────────────────────────────
@@ -144,8 +145,8 @@
     .navbar .btn-cerrar-sesion:hover {
       background-color: rgb(255, 0, 0) !important;
       /* rojo vivo al pasar */
-      color:rgb(0, 0, 0);
-      
+      color: rgb(0, 0, 0);
+
     }
   </style>
 </head>
@@ -161,7 +162,7 @@
   ?>
 
   <div class="container-fluid p-0">
-    <nav class="navbar navbar-expand-lg bg-light bg-gradient border-bottom px-4 py-3">
+    <nav class="navbar navbar-expand-lg bg-light bg-gradient border-bottom px-4 py-3 position-relative">
       <div class="container-fluid d-flex justify-content-between align-items-center">
         <!-- 🧑 Usuario a la izquierda -->
         <div class="d-flex align-items-center gap-2">
@@ -170,45 +171,47 @@
         </div>
 
         <!-- 🔗 Menú en el centro -->
-        <ul class="navbar-nav flex-row gap-4 align-items-center m-0">
-          <li class="nav-item">
-            <a class="nav-link px-2 <?= str_contains($rutaActual, '/ContenidoControlador/inicio') ? 'activa' : '' ?>"
-              href="<?= RUTA_URL ?>/ContenidoControlador/inicio">
-              🏠 Inicio
-            </a>
-          </li>
+        <div class="position-absolute top-50" style="left: 48%; transform: translate(-50%, -50%); z-index: 1;">
+          <ul class="navbar-nav flex-row gap-4 align-items-center m-0">
+            <li class="nav-item">
+              <a class="nav-link px-2 <?= str_contains($rutaActual, '/ContenidoControlador/inicio') ? 'activa' : '' ?>"
+                href="<?= RUTA_URL ?>/ContenidoControlador/inicio">
+                🏠 Inicio
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link px-2 <?= str_contains($rutaActual, '/EventosControlador') ? 'activa' : '' ?>"
-              href="<?= RUTA_URL ?>/EventosControlador/index">
-              📅 Calendario
-            </a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 <?= str_contains($rutaActual, '/EventosControlador') ? 'activa' : '' ?>"
+                href="<?= RUTA_URL ?>/EventosControlador/index">
+                📅 Calendario
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link px-2 <?= str_contains($rutaActual, '/PerfilControlador/editar') ? 'activa' : '' ?>"
-              href="<?= RUTA_URL ?>/PerfilControlador/editar">
-              👤 Mi perfil
-            </a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 <?= str_contains($rutaActual, '/PerfilControlador/editar') ? 'activa' : '' ?>"
+                href="<?= RUTA_URL ?>/PerfilControlador/editar">
+                👤 Mi perfil
+              </a>
+            </li>
 
-          <li class="nav-item position-relative">
-            <a class="nav-link px-2 position-relative" href="#" id="notificaciones-link">
-              <i class="bi bi-bell"></i>
-              <span id="contador-notificaciones" class="position-absolute top-0 start-100 badge rounded-pill d-none"
-                style="transform: translate(-50%, 30%);"></span>
-            </a>
-          </li>
+            <li class="nav-item position-relative">
+              <a class="nav-link px-2 position-relative" href="#" id="notificaciones-link">
+                <i class="bi bi-bell"></i>
+                <span id="contador-notificaciones" class="position-absolute top-0 start-100 badge rounded-pill d-none"
+                  style="transform: translate(-50%, 30%);"></span>
+              </a>
+            </li>
 
-          <!-- Icono de chat (el badge se actualizará desde chat.js) -->
-          <li class="nav-item position-relative">
-            <a id="chat-link" class="nav-link px-2" href="<?= RUTA_URL ?>/ChatControlador/index">
-              <i class="bi bi-chat-dots"></i>
-              <span id="badge-chat" class="position-absolute top-0 start-100 badge rounded-pill d-none"
-                style="transform: translate(-50%, 30%);"></span>
-            </a>
-          </li>
-        </ul>
+            <!-- Icono de chat (el badge se actualizará desde chat.js) -->
+            <li class="nav-item position-relative">
+              <a id="chat-link" class="nav-link px-2" href="<?= RUTA_URL ?>/ChatControlador/index">
+                <i class="bi bi-chat-dots"></i>
+                <span id="badge-chat" class="position-absolute top-0 start-100 badge rounded-pill d-none"
+                  style="transform: translate(-50%, 30%);"></span>
+              </a>
+            </li>
+          </ul>
+        </div>
 
         <!-- ⚙️ Botones derechos -->
         <div class="d-flex align-items-center gap-2">

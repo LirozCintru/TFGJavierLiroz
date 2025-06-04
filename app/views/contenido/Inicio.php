@@ -55,7 +55,7 @@ $departamentos = $datos['departamentos'] ?? [];
             <div class="mt-0 mb-4" style="margin-left: -1.5rem; margin-right: -1.5rem;">
                 <form method="GET"
                     class="row g-3 align-items-end bg-light border-top border-bottom py-3 px-4 m-0 filtros-usuarios">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Tipo</label>
                         <select name="tipo" class="form-select rounded-pill">
                             <option value="">-- Todos --</option>
@@ -66,7 +66,7 @@ $departamentos = $datos['departamentos'] ?? [];
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <label class="form-label">Límite</label>
                         <select name="limite" class="form-select rounded-pill" onchange="this.form.submit()">
                             <option value="5" <?= $limite == 5 ? 'selected' : '' ?>>5</option>
@@ -92,11 +92,11 @@ $departamentos = $datos['departamentos'] ?? [];
 
                     <div class="col-md-3">
                         <label class="form-label">Buscar</label>
-                        <input type="text" name="busqueda" class="form-control rounded-pill"
-                            placeholder="Título o contenido..." value="<?= htmlspecialchars($filtro_busqueda) ?>">
+                        <input type="text" name="busqueda" class="form-control rounded-pill" placeholder="Título"
+                            value="<?= htmlspecialchars($filtro_busqueda) ?>">
                     </div>
 
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <label class="form-label">Orden</label>
                         <select name="orden" class="form-select rounded-pill">
                             <option value="desc" <?= $orden === 'desc' ? 'selected' : '' ?>>↓ Recientes</option>
