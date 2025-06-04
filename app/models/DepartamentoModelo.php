@@ -10,12 +10,16 @@ class DepartamentoModelo
 
     public function obtenerTodos()
     {
+        // Ahora incluimos "descripcion" en el SELECT
         $this->db->query("
-            SELECT id_departamento, nombre
+            SELECT 
+                id_departamento,
+                nombre,
+                descripcion
             FROM departamentos
             ORDER BY nombre
         ");
-        return $this->db->registros();   
+        return $this->db->registros();
     }
 
     public function obtenerPorId($id)
@@ -27,7 +31,10 @@ class DepartamentoModelo
 
     public function crear($datos)
     {
-        $this->db->query("INSERT INTO departamentos (nombre, descripcion) VALUES (:nombre, :descripcion)");
+        $this->db->query("
+            INSERT INTO departamentos (nombre, descripcion)
+            VALUES (:nombre, :descripcion)
+        ");
         $this->db->bind(':nombre', $datos['nombre']);
         $this->db->bind(':descripcion', $datos['descripcion']);
         return $this->db->execute();
@@ -35,7 +42,12 @@ class DepartamentoModelo
 
     public function actualizar($id, $datos)
     {
-        $this->db->query("UPDATE departamentos SET nombre = :nombre, descripcion = :descripcion WHERE id_departamento = :id");
+        $this->db->query("
+            UPDATE departamentos
+               SET nombre = :nombre,
+                   descripcion = :descripcion
+             WHERE id_departamento = :id
+        ");
         $this->db->bind(':nombre', $datos['nombre']);
         $this->db->bind(':descripcion', $datos['descripcion']);
         $this->db->bind(':id', $id);
@@ -51,22 +63,26 @@ class DepartamentoModelo
 
     public function existeNombre($nombre, $excluirId = null)
     {
-        $query = "SELECT COUNT(*) as total FROM departamentos WHERE nombre = :nombre";
+        $query = "SELECT COUNT(*) AS total FROM departamentos WHERE nombre = :nombre";
         if ($excluirId) {
             $query .= " AND id_departamento != :excluir";
         }
         $this->db->query($query);
         $this->db->bind(':nombre', $nombre);
-        if ($excluirId)
+        if ($excluirId) {
             $this->db->bind(':excluir', $excluirId);
+        }
         return $this->db->registro()->total > 0;
     }
 
     public function tieneUsuariosAsignados($id_departamento)
     {
-        $this->db->query("SELECT COUNT(*) as total FROM usuarios WHERE id_departamento = :id");
+        $this->db->query("
+            SELECT COUNT(*) AS total
+              FROM usuarios
+             WHERE id_departamento = :id
+        ");
         $this->db->bind(':id', $id_departamento);
         return $this->db->registro()->total > 0;
     }
-
 }

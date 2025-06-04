@@ -5,7 +5,6 @@ require_once RUTA_APP . '/config/roles.php';
 class ContenidoControlador extends Controlador
 {
     private $modelo;
-    private $publicacionesControlador;
 
     public function __construct()
     {
@@ -14,48 +13,74 @@ class ContenidoControlador extends Controlador
 
     public function index()
     {
-        $this->inicio(); // redirige a la lógica que ya tienes
+        // Simplemente redirige a la lógica “inicio”
+        $this->inicio();
     }
+
     public function inicio()
     {
         verificarSesionActiva();
-
         $usuario = $_SESSION['usuario'];
-        $tipo = $_GET['tipo'] ?? '';
-        $busqueda = $_GET['busqueda'] ?? '';
-        $id_departamento = $_GET['departamento'] ?? '';
 
+        //
+        // 1) LEER TODOS LOS PARÁMETROS DE FILTRO / ORDEN / PAGINACIÓN
+        //
+        $filtro_tipo = trim($_GET['tipo'] ?? '');
+        $filtro_busqueda = trim($_GET['busqueda'] ?? '');
+        $filtro_departamento = trim($_GET['departamento'] ?? '');
 
-
-        // Si no es admin, limitar el filtro al departamento propio
+        // Si NO es admin, forzamos su propio departamento (no lista los demás).
         if ($usuario['id_rol'] != ROL_ADMIN) {
-            $id_departamento = $usuario['id_departamento'];
+            $filtro_departamento = $usuario['id_departamento'];
         }
 
-        // Límite de publicaciones por página
-        if (isset($_GET['limite']) && (int) $_GET['limite'] > 0) {
-            $_SESSION['limite_publicaciones'] = (int) $_GET['limite'];
-        }
-        $limite = $_SESSION['limite_publicaciones'] ?? 10;
+        $orden = trim($_GET['orden'] ?? 'desc');    // 'asc' o 'desc'
+        $limite = (int) ($_GET['limite'] ?? ($_SESSION['limite_publicaciones'] ?? 10));
         if ($limite <= 0) {
             $limite = 10;
         }
+        // Guardar en sesión el límite si vino por GET:
+        if (isset($_GET['limite']) && (int) $_GET['limite'] > 0) {
+            $_SESSION['limite_publicaciones'] = $limite;
+        }
 
-        // Página actual
-        $pagina = isset($_GET['pagina']) && (int) $_GET['pagina'] > 0 ? (int) $_GET['pagina'] : 1;
+        $pagina = isset($_GET['pagina']) && (int) $_GET['pagina'] > 0
+            ? (int) $_GET['pagina']
+            : 1;
+
+        //
+        // 2) CALCULAR CUÁNTAS FILAS HAY EN TOTAL CON ESOS FILTROS
+        //
+        $total_filtradas = $this->modelo->contarFiltradas(
+            $usuario,
+            $filtro_tipo,
+            $filtro_busqueda,
+            $filtro_departamento
+        );
+
+        $total_paginas = max(1, (int) ceil($total_filtradas / $limite));
+        if ($pagina > $total_paginas) {
+            $pagina = $total_paginas;
+        }
+
         $offset = ($pagina - 1) * $limite;
 
-        // Total de publicaciones filtradas
-        $total = $this->modelo->contarFiltradas($usuario, $tipo, $busqueda, $id_departamento);
-        $total_paginas = max(1, ceil($total / $limite));
+        //
+        // 3) OBTENER LA PÁGINA CORRESPONDIENTE CON TODOS LOS FILTROS + ORDEN + LIMIT/OFFSET
+        //
+        $publicaciones = $this->modelo->obtenerPaginadas(
+            $usuario,
+            $filtro_tipo,
+            $filtro_busqueda,
+            $filtro_departamento,
+            $limite,
+            $offset,
+            $orden       // ahora se usa para ORDER BY p.fecha ASC|DESC
+        );
 
-        // Publicaciones paginadas
-        $publicaciones = $this->modelo->obtenerPaginadas($usuario, $tipo, $busqueda, $id_departamento, $limite, $offset);
-
-        // echo '<pre>'; print_r($publicaciones); echo '</pre>'; exit;
-
-
-        // Añadir comentarios a cada publicación
+        //
+        // 4) AÑADIR COMENTARIOS Y EVENTOS A CADA PUBLICACIÓN (si ya lo tenías así)
+        //
         $comentarioModelo = $this->modelo('ComentarioModelo');
         foreach ($publicaciones as $p) {
             $p->comentarios = $comentarioModelo->obtenerPorPublicacion($p->id_publicacion);
@@ -66,23 +91,30 @@ class ContenidoControlador extends Controlador
             $p->evento = $eventoModelo->obtenerPorPublicacion($p->id_publicacion)[0] ?? null;
         }
 
+        //
+        // 5) LISTA DE DEPARTAMENTOS (sólo se muestra si el usuario es ADMIN)
+        //
+        $departamentos = [];
+        if ($usuario['id_rol'] == ROL_ADMIN) {
+            $departamentos = $this->modelo('DepartamentoModelo')->obtenerTodos();
+        }
 
-        // Departamentos (solo para admin)
-        $departamentos = $usuario['id_rol'] == ROL_ADMIN
-            ? $this->modelo('DepartamentoModelo')->obtenerTodos()
-            : [];
-
-        // ID de publicación a expandir (tras comentar)
+        //
+        // 6) ID DE PUBLICACIÓN A EXPANDIR (si existe en sesión tras comentar)
+        //
         $expandirId = $_SESSION['expandir_publicacion'] ?? null;
         unset($_SESSION['expandir_publicacion']);
 
-        // Vista
+        //
+        // 7) LLAMAR A LA VISTA PASÁNDOLE TODOS LOS DATOS
+        //
         $this->vista('contenido/inicio', [
             'publicaciones' => $publicaciones,
             'departamentos' => $departamentos,
-            'filtro_tipo' => $tipo,
-            'filtro_busqueda' => $busqueda,
-            'filtro_departamento' => $id_departamento,
+            'filtro_tipo' => $filtro_tipo,
+            'filtro_busqueda' => $filtro_busqueda,
+            'filtro_departamento' => $filtro_departamento,
+            'orden' => $orden,
             'pagina' => $pagina,
             'total_paginas' => $total_paginas,
             'limite' => $limite,
@@ -97,7 +129,7 @@ class ContenidoControlador extends Controlador
         switch ($nombre) {
             case 'inicio':
                 $publicaciones = $this->modelo('PublicacionModelo')->obtenerTodas($_SESSION['usuario']);
-                $departamentos = $this->modelo('DepartamentoModelo')->obtenerTodos(); // si usas esto
+                $departamentos = $this->modelo('DepartamentoModelo')->obtenerTodos();
                 $this->vista('secciones/inicio', [
                     'publicaciones' => $publicaciones,
                     'pagina' => 1,
@@ -112,11 +144,11 @@ class ContenidoControlador extends Controlador
                 break;
 
             case 'notificaciones':
-                $this->vista('secciones/notificaciones'); // luego la creamos
+                $this->vista('secciones/notificaciones');
                 break;
 
             case 'perfil':
-                $this->vista('secciones/perfil'); // luego la creamos
+                $this->vista('secciones/perfil');
                 break;
 
             default:
@@ -124,7 +156,4 @@ class ContenidoControlador extends Controlador
                 break;
         }
     }
-
-
-
 }

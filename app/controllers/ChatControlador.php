@@ -86,23 +86,27 @@ class ChatControlador extends Controlador
         $dest = filter_input(INPUT_POST, 'destinatario', FILTER_VALIDATE_INT);
         $texto = trim($_POST['mensaje'] ?? '');
 
+        // Si faltan datos, devolvemos ok=false
         if (!$dest || $texto === '') {
             echo json_encode(['ok' => false]);
             return;
         }
 
+        // Insertar en BD
         $nuevoId = $this->msgModelo->crear([
             'contenido' => $texto,
             'id_remitente' => $yo,
             'id_destinatario' => $dest
         ]);
 
+        // Solo devolvemos JSON
         echo json_encode([
             'ok' => true,
             'id' => $nuevoId,
             'fecha' => date('c')
         ]);
     }
+
 
     /**
      * nuevos():
@@ -139,4 +143,25 @@ class ChatControlador extends Controlador
         $total = $this->msgModelo->contarNoLeidosTotales($yo);
         echo json_encode(['pendientes' => $total]);
     }
+
+    // public function pruebaInsertar()
+    // {
+    //     verificarSesionActiva();
+    //     $yo = $_SESSION['usuario']['id'];
+    //     $dest = 2;
+    //     $texto = "Mensaje prueba a las " . date('H:i:s');
+
+    //     try {
+    //         $nuevoId = $this->msgModelo->crear([
+    //             'contenido' => $texto,
+    //             'id_remitente' => $yo,
+    //             'id_destinatario' => $dest
+    //         ]);
+    //         echo "Nuevo ID: $nuevoId";
+    //     } catch (PDOException $e) {
+    //         echo "Error en BD: " . $e->getMessage();
+    //     }
+    //     exit;
+    // }
+
 }

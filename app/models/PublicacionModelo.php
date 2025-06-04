@@ -269,8 +269,16 @@ class PublicacionModelo
         return $this->db->registro()->total ?? 0;
     }
 
-    public function obtenerPaginadas($usuario, $tipo = '', $busqueda = '', $id_departamento = null, $limite = 10, $offset = 0)
-    {
+    public function obtenerPaginadas(
+        $usuario,
+        $tipo = '',
+        $busqueda = '',
+        $id_departamento = null,
+        $limite = 10,
+        $offset = 0,
+        $orden = 'desc'
+    ) {
+        // Construimos la parte común de la consulta
         $sql = "
             SELECT p.*, u.nombre AS autor, d.nombre AS nombre_departamento
             FROM publicaciones p
@@ -279,34 +287,46 @@ class PublicacionModelo
             WHERE 1=1
         ";
 
+        // VISIBILIDAD según rol
         if ($usuario['id_rol'] != ROL_ADMIN) {
             $sql .= " AND (
-                p.tipo IN ('General', 'Urgente') 
-                OR (p.tipo = 'Departamental' AND p.id_departamento = :id_departamento)
-            )";
+                        p.tipo IN ('General', 'Urgente')
+                        OR (p.tipo = 'Departamental' AND p.id_departamento = :id_departamento)
+                      )";
         }
 
-        if (!empty($tipo))
+        if (!empty($tipo)) {
             $sql .= " AND p.tipo = :tipo";
-        if (!empty($busqueda))
+        }
+        if (!empty($busqueda)) {
             $sql .= " AND (p.titulo LIKE :busqueda OR p.contenido LIKE :busqueda)";
-        if ($usuario['id_rol'] == ROL_ADMIN && !empty($id_departamento))
+        }
+        if ($usuario['id_rol'] == ROL_ADMIN && !empty($id_departamento)) {
             $sql .= " AND p.id_departamento = :dep";
+        }
 
-        $sql .= " ORDER BY p.fecha DESC LIMIT :limite OFFSET :offset";
+        // **En lugar de "ORDER BY p.fecha DESC", usamos $orden dinámico**:
+        $orden = strtolower($orden) === 'asc' ? 'ASC' : 'DESC';
+        $sql .= " ORDER BY p.fecha {$orden} 
+                  LIMIT :limite OFFSET :offset";
 
         $this->db->query($sql);
 
+        // Bind de parámetros según rol y filtros
         if ($usuario['id_rol'] != ROL_ADMIN) {
             $this->db->bind(':id_departamento', $id_departamento);
         }
-        if (!empty($tipo))
+        if (!empty($tipo)) {
             $this->db->bind(':tipo', $tipo);
-        if (!empty($busqueda))
+        }
+        if (!empty($busqueda)) {
             $this->db->bind(':busqueda', '%' . $busqueda . '%');
-        if ($usuario['id_rol'] == ROL_ADMIN && !empty($id_departamento))
+        }
+        if ($usuario['id_rol'] == ROL_ADMIN && !empty($id_departamento)) {
             $this->db->bind(':dep', $id_departamento);
+        }
 
+        // Bind de paginación
         $this->db->bind(':limite', (int) $limite, PDO::PARAM_INT);
         $this->db->bind(':offset', (int) $offset, PDO::PARAM_INT);
 

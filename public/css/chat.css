@@ -1,174 +1,263 @@
-  .chat-card {
-    border: 2px solid #dee2e6;
-    border-radius: 1rem;
-    overflow: hidden;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  }
-  .chat-card-header {
-    background-color: #0d6efd;
-    color: #ffffff;
-    padding: 1rem 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .chat-card-header h5 {
-    margin: 0;
-    font-size: 1.25rem;
-  }
-  .chat-container {
-    display: flex;
-    height: calc(100vh - 120px); /* Ajustar según altura del header + margen */
-    background-color: #f8f9fa;
-  }
-  .chat-sidebar {
-    width: 28%;
-    background-color: #ffffff;
-    border-right: 1px solid #dee2e6;
-    display: flex;
-    flex-direction: column;
-  }
-  .chat-sidebar .search-bar {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #dee2e6;
-    background-color: #f1f3f5;
-  }
-  .chat-sidebar .search-bar .form-control,
-  .chat-sidebar .search-bar .form-select {
-    border-radius: 2rem;
-  }
-  .chat-sidebar .user-list {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-  .chat-sidebar .list-group-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    border: none;
-    border-bottom: 1px solid #f1f3f5;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    background-color: #ffffff;
-  }
-  .chat-sidebar .list-group-item:hover,
-  .chat-sidebar .list-group-item.active {
-    background-color: #e9ecef;
-  }
-  .chat-sidebar .user-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 0.75rem;
-    border: 1px solid #ced4da;
-  }
-  .chat-sidebar .user-name {
-    font-weight: 500;
-    flex-grow: 1;
-  }
-  .chat-sidebar .badge-unread {
-    background-color: #dc3545;
-    font-size: 0.75rem;
-  }
+/* ─────────────────────────────────────────────────────────
+   1) Estructura general de la tarjeta de chat
+───────────────────────────────────────────────────────── */
+.chat-card {
+  border: 2px solid #dee2e6;
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+.chat-card-header {
+  background-color: #0d6efd;
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-card-header h5 {
+  margin: 0;
+  font-size: 1.25rem;
+}
 
-  .chat-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: #f8f9fa;
-  }
-  .chat-header {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background-color: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-  }
-  .chat-header .contact-info {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-  }
-  .chat-header .contact-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 0.75rem;
-    border: 1px solid #ced4da;
-  }
-  .chat-header .contact-name {
-    font-weight: 600;
-    font-size: 1rem;
-  }
-  .chat-header .btn-close-chat {
-    border: none;
-    background: none;
-    font-size: 1.25rem;
-    color: #6c757d;
-    cursor: pointer;
-  }
+/* ─────────────────────────────────────────────────────────
+   2) Contenedor principal (lista + chat) en dos columnas
+───────────────────────────────────────────────────────── */
+.chat-container {
+  display: flex;
+  height: calc(100vh - 120px); /* Ajustar según tu header */
+  background-color: #f8f9fa;
+}
 
-  .chat-messages {
-    flex: 1;
-    padding: 1rem;
-    overflow-y: auto;
-    background-color: #f8f9fa;
-  }
-  .message-item {
-    display: flex;
-    flex-direction: column;
-    max-width: 65%;
-    margin-bottom: 0.75rem;
-  }
-  .message-item.sent {
-    align-self: flex-end;
-    text-align: right;
-  }
-  .message-item.received {
-    align-self: flex-start;
-    text-align: left;
-  }
-  .message-bubble {
-    display: inline-block;
-    padding: 0.5rem 0.75rem;
-    border-radius: 1rem;
-    position: relative;
-    font-size: 0.9rem;
-    max-width: 100%;
-    word-wrap: break-word;
-  }
-  .message-bubble.sent {
-    background-color: #0d6efd;
-    color: #ffffff;
-    border-bottom-right-radius: 0.25rem;
-  }
-  .message-bubble.received {
-    background-color: #ffffff;
-    color: #212529;
-    border: 1px solid #dee2e6;
-    border-bottom-left-radius: 0.25rem;
-  }
-  .message-time {
-    font-size: 0.75rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-  }
+/* ─────────────────────────────────────────────────────────
+   3) Barra lateral de contactos (“sidebar”)
+───────────────────────────────────────────────────────── */
+.chat-sidebar {
+  width: 35%;
+  background-color: #ffffff;
+  border-right: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+}
+.chat-sidebar .search-bar {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f1f3f5;
+}
+.chat-sidebar .search-bar .form-control,
+.chat-sidebar .search-bar .form-select {
+  border-radius: 2rem;
+}
+.chat-sidebar .user-list {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+.chat-sidebar .list-group-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-bottom: 1px solid #f1f3f5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: #ffffff;
+}
+.chat-sidebar .list-group-item:hover,
+.chat-sidebar .list-group-item.active {
+  background-color: #e9ecef;
+}
+.chat-sidebar .user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  border: 1px solid #ced4da;
+}
+.chat-sidebar .user-name {
+  font-weight: 500;
+  flex-grow: 1;
+}
+.chat-sidebar .badge-unread {
+  background-color: #dc3545;
+  font-size: 0.75rem;
+}
 
-  .chat-footer {
-    padding: 0.75rem 1rem;
-    background-color: #ffffff;
-    border-top: 1px solid #dee2e6;
-  }
-  .chat-footer .form-control {
-    border-radius: 2rem;
-    resize: none;
-  }
-  .chat-footer .btn-send {
-    border-radius: 2rem;
-    width: 48px;
-    height: 48px;
-  }
+/* Estilo especial para el “contacto activo” */
+.chat-sidebar .list-group-item.active {
+  background-color: #e3f2fd; /* azul muy suave */
+  color: #0d47a1; /* azul oscuro */
+  border-left: 4px solid #0d6efd; /* barra lateral azul */
+}
+.chat-sidebar .list-group-item.active:hover {
+  background-color: #d0e7fc;
+}
+
+/* ─────────────────────────────────────────────────────────
+   4) Área de chat (lado derecho)
+───────────────────────────────────────────────────────── */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+}
+.chat-header .contact-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+.chat-header .contact-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  border: 1px solid #ced4da;
+}
+.chat-header .contact-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+.chat-header .btn-close-chat {
+  border: none;
+  background: none;
+  font-size: 1.25rem;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+/* ─────────────────────────────────────────────────────────
+   5) Contenedor de mensajes
+───────────────────────────────────────────────────────── */
+.chat-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+}
+/* Scrollbar fino (solo Webkit) */
+.chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+}
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────
+   6) Burbuja de mensaje (tamaño, color, esquinas redondeadas)
+───────────────────────────────────────────────────────── */
+.message-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+/* Mensajes “enviados” (propios) */
+.message-item.sent {
+  align-self: flex-end; /* pegado a la derecha */
+  max-width: 70%; /* ocupa como máximo el 70% del ancho */
+  text-align: right;
+}
+.message-item.sent .message-bubble {
+  background-color: #198754; /* verde Bootstrap (contraste más legible con hora blanca) */
+  color: #ffffff;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 0.25rem; /* esquina inferior derecha “plana” */
+  box-shadow: 0 1px 3px rgba(25, 135, 84, 0.2);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  word-wrap: break-word;
+}
+.message-item.sent .message-time {
+  color: rgba(255, 255, 255, 0.85); /* hora en blanco semi-intenso */
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Mensajes “recibidos” */
+.message-item.received {
+  align-self: flex-start; /* pegado a la izquierda */
+  max-width: 70%;
+  text-align: left;
+}
+.message-item.received .message-bubble {
+  background-color: #ffffff; /* blanco puro */
+  color: #212529; /* texto gris oscuro */
+  border: 1px solid #dee2e6;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  border-bottom-left-radius: 0.25rem; /* esquina inferior izquierda “plana” */
+  border-bottom-right-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  word-wrap: break-word;
+}
+.message-item.received .message-time {
+  color: #495057; /* hora en gris oscuro */
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   7) Pie de chat (formulario + botones ↑/↓)
+───────────────────────────────────────────────────────── */
+.chat-footer {
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  border-top: 1px solid #dee2e6;
+}
+
+/* El textarea ocupa todo el espacio restante */
+.chat-footer .form-control {
+  border-radius: 2rem;
+  resize: none;
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+/* Botones de scroll “↑” / “↓”: 
+   - Tamaño compacto (btn-sm).
+   - Fondo claro para que contraste con el textarea/entorno. */
+#btn-scroll-arriba,
+#btn-scroll-abajo {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+}
+
+/* Botón de enviar (ya lo tenías, solo por si quieres ajustar tamaños) */
+.chat-footer .btn-send {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

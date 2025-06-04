@@ -1,19 +1,19 @@
 <?php require RUTA_APP . '/views/inc/headermain.php'; ?>
 
-<div class="container py-4 seccion-usuarios">
+<div class="container py-4 seccion-departamentos">
 
     <!-- Tarjeta principal -->
     <div class="rounded-4 overflow-hidden shadow border border-2 bg-white">
 
         <!-- Cabecera con franja azul específica -->
         <div class="encabezado-usuarios-index px-4 py-3 d-flex justify-content-between align-items-center">
-            <h5 class="titulo-edicion mb-0" style="padding-top: 2px;">
+            <h5 class="titulo-edicion mb-0">
                 <i class="bi bi-people-fill me-2"></i>Gestión de usuarios
             </h5>
 
             <a href="<?= RUTA_URL ?>/UsuariosControlador/crear"
-                class="btn btn-success rounded-pill d-flex align-items-center gap-2 px-3 py-1" style="margin-top: 2px;">
-                <i class="bi bi-person-plus"></i>
+                class="btn btn-success rounded-pill d-flex align-items-center gap-2 px-3 py-1">
+                <i class="bi bi-plus-circle"></i>
                 <span>Añadir usuario</span>
             </a>
         </div>

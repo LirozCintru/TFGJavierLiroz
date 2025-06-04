@@ -25,15 +25,14 @@ class ContenidoControlador extends Controlador
         $tipo = $_GET['tipo'] ?? '';
         $busqueda = $_GET['busqueda'] ?? '';
         $id_departamento = $_GET['departamento'] ?? '';
+        $orden = ($_GET['orden'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
 
-
-
-        // Si no es admin, limitar el filtro al departamento propio
+        // Si no es admin, forzamos su propio departamento
         if ($usuario['id_rol'] != ROL_ADMIN) {
             $id_departamento = $usuario['id_departamento'];
         }
 
-        // Límite de publicaciones por página
+        // Límite y página
         if (isset($_GET['limite']) && (int) $_GET['limite'] > 0) {
             $_SESSION['limite_publicaciones'] = (int) $_GET['limite'];
         }
@@ -41,20 +40,23 @@ class ContenidoControlador extends Controlador
         if ($limite <= 0) {
             $limite = 10;
         }
-
-        // Página actual
         $pagina = isset($_GET['pagina']) && (int) $_GET['pagina'] > 0 ? (int) $_GET['pagina'] : 1;
         $offset = ($pagina - 1) * $limite;
 
-        // Total de publicaciones filtradas
+        // Total de filas
         $total = $this->modelo->contarFiltradas($usuario, $tipo, $busqueda, $id_departamento);
         $total_paginas = max(1, ceil($total / $limite));
 
-        // Publicaciones paginadas
-        $publicaciones = $this->modelo->obtenerPaginadas($usuario, $tipo, $busqueda, $id_departamento, $limite, $offset);
-
-        // echo '<pre>'; print_r($publicaciones); echo '</pre>'; exit;
-
+        // Aquí pasamos $orden a obtenerPaginadas
+        $publicaciones = $this->modelo->obtenerPaginadas(
+            $usuario,
+            $tipo,
+            $busqueda,
+            $id_departamento,
+            $limite,
+            $offset,
+            $orden
+        );
 
         // Añadir comentarios a cada publicación
         $comentarioModelo = $this->modelo('ComentarioModelo');
@@ -84,6 +86,7 @@ class ContenidoControlador extends Controlador
             'filtro_tipo' => $tipo,
             'filtro_busqueda' => $busqueda,
             'filtro_departamento' => $id_departamento,
+            'orden' => $orden,
             'pagina' => $pagina,
             'total_paginas' => $total_paginas,
             'limite' => $limite,

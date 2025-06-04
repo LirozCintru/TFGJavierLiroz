@@ -18,7 +18,6 @@ class MensajeModelo
      */
     public function crear(array $datos): int
     {
-        // 1) Insertar fila
         $this->db->query("
         INSERT INTO mensajes (contenido, id_remitente, id_destinatario, leido)
         VALUES (:contenido, :rem, :dest, 0)
@@ -28,11 +27,11 @@ class MensajeModelo
         $this->db->bind(':dest', (int) $datos['id_destinatario']);
         $this->db->execute();
 
-        // 2) Recuperar último ID insertado
         $this->db->query("SELECT LAST_INSERT_ID() AS id");
         $fila = $this->db->registro();
         return isset($fila->id) ? (int) $fila->id : 0;
     }
+
 
 
     /**

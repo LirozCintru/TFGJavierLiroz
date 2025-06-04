@@ -9,6 +9,7 @@ $publicaciones = $datos['publicaciones'] ?? [];
 $filtro_tipo = $datos['filtro_tipo'] ?? '';
 $filtro_busqueda = $datos['filtro_busqueda'] ?? '';
 $filtro_departamento = $datos['filtro_departamento'] ?? '';
+$orden = $datos['orden'] ?? 'desc';
 $departamentos = $datos['departamentos'] ?? [];
 ?>
 
@@ -98,16 +99,31 @@ $departamentos = $datos['departamentos'] ?? [];
                     <div class="col-md-1">
                         <label class="form-label">Orden</label>
                         <select name="orden" class="form-select rounded-pill">
-                            <option value="desc" <?= ($_GET['orden'] ?? '') === 'desc' ? 'selected' : '' ?>>↓ Recientes
-                            </option>
-                            <option value="asc" <?= ($_GET['orden'] ?? '') === 'asc' ? 'selected' : '' ?>>↑ Antiguas
-                            </option>
+                            <option value="desc" <?= $orden === 'desc' ? 'selected' : '' ?>>↓ Recientes</option>
+                            <option value="asc" <?= $orden === 'asc' ? 'selected' : '' ?>>↑ Antiguas</option>
                         </select>
+
                     </div>
 
-                    <div class="col-md-1 d-grid">
-                        <button type="submit" class="btn btn-outline-primary rounded-pill">Filtrar</button>
+
+                    <div class="col-md-2 d-flex gap-2 justify-content-end">
+                        <button type="submit" class="btn btn-outline-primary rounded-pill">
+                            <i class="bi bi-search me-1"></i> Buscar
+                        </button>
+                        <a href="<?= RUTA_URL ?>/ContenidoControlador/inicio"
+                            class="btn btn-outline-secondary rounded-pill">
+                            Limpiar
+                        </a>
                     </div>
+                    <!-- <div class="col-md-2 d-flex gap-2 justify-content-end">
+                        <button type="submit" class="btn btn-outline-primary rounded-pill">
+                            Filtrar
+                        </button>
+                        <a href="<?= RUTA_URL ?>/ContenidoControlador/inicio"
+                            class="btn btn-outline-secondary rounded-pill">
+                            Limpiar filtros
+                        </a>
+                    </div> -->
                 </form>
             </div>
 
