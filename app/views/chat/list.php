@@ -27,15 +27,16 @@ require_once RUTA_APP . '/views/inc/headermain.php';
                             placeholder="Buscar nombre…"
                             value="<?= htmlspecialchars($datos['datos']['filtro_nombre'] ?? '') ?>">
                         <select name="departamento" class="form-select form-select-sm me-2" style="max-width:120px;">
-                            <option value="">Depto.</option>
+                            <option value="">-- Todos --</option>
                             <?php foreach ($datos['departamentos'] as $dep): ?>
-                                <option value="<?= $dep->id_departamento ?>"
-                                    <?= ((int) ($datos['datos']['filtro_departamento'] ?? 0) === $dep->id_departamento) ? 'selected' : '' ?>>
+                                <option value="<?= $dep->id_departamento ?>" <?= ((int) ($datos['datos']['filtro_departamento'] ?? 0) === $dep->id_departamento) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($dep->nombre) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" class="btn btn-sm btn-primary">OK</button>
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <i class="bi bi-search me-1"></i>
+                        </button>
                     </form>
                 </div>
 
@@ -125,16 +126,20 @@ require_once RUTA_APP . '/views/inc/headermain.php';
                     <!-- Pie de página: Enviar mensaje + botones scroll -->
                     <div class="chat-footer">
                         <form id="form-chat" class="d-flex align-items-center w-100">
+                            <!-- 1) Input oculto con el destinatario -->
+                            <input type="hidden" name="destinatario" value="<?= htmlspecialchars($datos['con'] ?? '') ?>">
+
+                            <!-- 2) Textarea de mensaje -->
                             <textarea name="mensaje" class="form-control me-2" rows="1" placeholder="Escribe tu mensaje…"
                                 required></textarea>
 
-                            <!-- Botones para desplazar: arriba / abajo -->
+                            <!-- 3) Botones de scroll “↑/↓” -->
                             <button type="button" id="btn-scroll-arriba" class="btn btn-light btn-sm me-1"
                                 title="Ir al inicio de la conversación">↑</button>
                             <button type="button" id="btn-scroll-abajo" class="btn btn-light btn-sm me-2"
                                 title="Ir al final de la conversación">↓</button>
 
-                            <!-- Botón de enviar (flecha) -->
+                            <!-- 4) Botón de enviar (flecha) -->
                             <button type="submit" class="btn btn-primary btn-send">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
