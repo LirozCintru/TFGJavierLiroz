@@ -18,10 +18,10 @@
 
 ```bash
 TFGJavierLiroz/
-├── backend/           # Backend en PHP (MVC)
-├── frontend/          # Frontend en React
-├── database/          # Script SQL para creación de tablas
-├── README.md          # Este archivo
+├── app/           
+├── public/         
+├── database/          
+├── README.md   
 └── .gitignore
 ```
 

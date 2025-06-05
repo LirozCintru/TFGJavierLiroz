@@ -65,7 +65,7 @@
                 <div class="mb-4">
                     <label class="form-label label-edicion">Nueva contraseña</label>
                     <input type="password" name="contrasena" class="form-control rounded-pill"
-                        placeholder="Déjalo vacío si no quieres cambiarla">
+                        placeholder="password">
                 </div>
 
                 <!-- Botón -->

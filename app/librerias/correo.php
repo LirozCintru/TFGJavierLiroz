@@ -8,29 +8,28 @@ use PHPMailer\PHPMailer\Exception;
 
 class Correo
 {
-    public static function enviarBonito($destinatario, $asunto, $contenido, $botonTexto = null, $botonEnlace = null)
-    {
-        $mail = new PHPMailer(true);
+  public static function enviarBonito($destinatario, $asunto, $contenido, $botonTexto = null, $botonEnlace = null)
+  {
+    $mail = new PHPMailer(true);
 
-        try {
-            // Configuración SMTP
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'phpprueba3000@gmail.com';
-            $mail->Password = 'dpeb zwzm fpla ilpx';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+    try {
+      // Configuración SMTP
+      $mail->isSMTP();
+      $mail->Host = 'smtp.gmail.com';
+      $mail->SMTPAuth = true;
+      $mail->Username = 'phpprueba3000@gmail.com';
+      $mail->Password = 'dpeb zwzm fpla ilpx';
+      $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+      $mail->Port = 587;
+      $mail->setFrom('phpprueba3000@gmail.com', 'IntraLink');
+      $mail->addAddress($destinatario);
 
-            $mail->setFrom('phpprueba3000@gmail.com', 'IntraLink');
-            $mail->addAddress($destinatario);
+      $mail->isHTML(true);
+      $mail->CharSet = 'UTF-8';
+      $mail->Subject = $asunto;
 
-            $mail->isHTML(true);
-            $mail->CharSet = 'UTF-8';
-            $mail->Subject = $asunto;
-
-            // Construcción del cuerpo HTML
-            $html = "
+      // Construcción del cuerpo HTML
+      $html = "
             <html>
             <head>
               <style>
@@ -55,23 +54,23 @@ class Correo
                 <div class='titulo'>{$asunto}</div>
                 <div class='contenido'>{$contenido}</div>";
 
-            if ($botonTexto && $botonEnlace) {
-                $html .= "<div><a class='boton' href='{$botonEnlace}' target='_blank'>{$botonTexto}</a></div>";
-            }
+      if ($botonTexto && $botonEnlace) {
+        $html .= "<div><a class='boton' href='{$botonEnlace}' target='_blank'>{$botonTexto}</a></div>";
+      }
 
-            $html .= "<div class='footer'>Este correo fue enviado automáticamente desde IntraLink.</div>
+      $html .= "<div class='footer'>Este correo fue enviado automáticamente desde IntraLink.</div>
               </div>
             </body>
             </html>";
 
-            $mail->Body = $html;
+      $mail->Body = $html;
 
-            $mail->send();
-            return true;
+      $mail->send();
+      return true;
 
-        } catch (Exception $e) {
-            error_log("Error al enviar correo: {$mail->ErrorInfo}");
-            return false;
-        }
+    } catch (Exception $e) {
+      error_log("Error al enviar correo: {$mail->ErrorInfo}");
+      return false;
     }
+  }
 }
