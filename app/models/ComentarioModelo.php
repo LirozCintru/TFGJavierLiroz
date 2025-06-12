@@ -66,6 +66,14 @@ class ComentarioModelo
         return $this->db->registro();
     }
 
+    public function eliminarPorPublicacion($id_publicacion)
+{
+    $this->db->query("DELETE FROM comentarios WHERE id_publicacion = :id");
+    $this->db->bind(':id', $id_publicacion);
+    return $this->db->execute();
+}
+
+
     
 
 }

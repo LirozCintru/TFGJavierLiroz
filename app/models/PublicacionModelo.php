@@ -123,13 +123,13 @@ class PublicacionModelo
         $this->db->bind(':autor', $datos['id_autor']);
         $this->db->bind(':dep', $datos['id_departamento']);
         $this->db->bind(':img', $datos['imagen_destacada']);
-        $this->db->execute();                // ← se hace el INSERT
+        $this->db->execute();
 
         /* 2. Recuperar el autoincrement de ESTA inserción */
-        $this->db->query("SELECT LAST_INSERT_ID() AS id_pub"); // misma conexión ⇒ id correcto
-        $row = $this->db->registro();                           // ejecuta y trae la fila
+        $this->db->query("SELECT LAST_INSERT_ID() AS id_pub");
+        $row = $this->db->registro();
 
-        return $row ? (int) $row->id_pub : null;                 //  ← aquí devuelves el id
+        return $row ? (int) $row->id_pub : null;
     }
 
 

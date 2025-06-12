@@ -43,7 +43,7 @@ class PublicacionesControlador extends Controlador
         verificarSesionActiva();
         $categorias = require RUTA_APP . '/config/categorias_evento.php';
 
-        /* 🔒 Solo Admin/Jefe */
+        /*Solo Admin/Jefe */
         if (!$this->esAdminOJefe()) {
             redireccionar('/ContenidoControlador/inicio');   // sin permiso
         }
@@ -60,10 +60,10 @@ class PublicacionesControlador extends Controlador
                 'tipo' => $_POST['tipo'],
                 'id_autor' => $_SESSION['usuario']['id'],
 
-                // ⭐️ Selección segura del departamento:
+                //Selección segura del departamento:
                 'id_departamento' => ($_SESSION['usuario']['id_rol'] == ROL_ADMIN)
                     ? $depSolicitado                      // Admin escoge cualquiera
-                    : $_SESSION['usuario']['id_departamento'], // Jefe → el suyo
+                    : $_SESSION['usuario']['id_departamento'], // Jefe -> el suyo
 
                 'imagen_destacada' => $this->procesarImagen('imagen_destacada', 'pub_')
             ];
@@ -178,7 +178,7 @@ class PublicacionesControlador extends Controlador
     {
         verificarSesionActiva();
 
-        /* 🔒 Solo Admin / Jefe */
+        /*Solo Admin / Jefe */
         if (!$this->esAdminOJefe()) {
             redireccionar('/ContenidoControlador/inicio');
         }
@@ -197,27 +197,35 @@ class PublicacionesControlador extends Controlador
             $this->eliminarImagenFisica($img->ruta_imagen);
         }
 
-        /* 2. Borrar eventos */
+        /* 2. Borrar eventos y sus notificaciones */
         $eventoModelo = $this->modelo('EventoModelo');
-        foreach ($eventoModelo->obtenerPorPublicacion($id) as $ev) {
+        $eventos = $eventoModelo->obtenerPorPublicacion($id);
+
+        foreach ($eventos as $ev) {
+            $this->notificacionModelo->eliminarPorReferencia($ev->id_evento, 'evento');
             $eventoModelo->eliminar($ev->id_evento);
         }
 
-        /* 3. Borrar notificaciones */
-        $this->notificacionModelo->eliminarPorReferencia($id);
+        /* 3. Borrar notificaciones asociadas a la publicación */
+        $this->notificacionModelo->eliminarPorReferencia($id, 'urgente');
+        $this->notificacionModelo->eliminarPorReferencia($id, 'departamento');
 
-        /* 4. Borrar publicación */
+        /* 4. Borrar comentarios */
+        $this->comentarioModelo->eliminarPorPublicacion($id);
+
+        /* 5. Borrar publicación */
         $this->modelo->eliminar($id);
 
         $_SESSION['mensajeExito'] = 'Publicación eliminada correctamente.';
         redireccionar('/ContenidoControlador/inicio');
     }
 
+
     public function editar($id)
     {
         verificarSesionActiva();
 
-        /* 🔒 Solo Admin / Jefe */
+        /*Solo Admin / Jefe */
         if (!$this->esAdminOJefe()) {
             redireccionar('/ContenidoControlador/inicio');
         }
@@ -365,6 +373,8 @@ class PublicacionesControlador extends Controlador
         }
     }
 
+    /* ----------- */
+
     public function comentar($id_publicacion)
     {
         verificarSesionActiva();
@@ -380,7 +390,7 @@ class PublicacionesControlador extends Controlador
                 ]);
             }
 
-            // ✅ Si es AJAX, devolver solo el HTML del comentario
+            //Si es AJAX, devolver solo el HTML del comentario
             if (
                 !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
@@ -427,11 +437,6 @@ class PublicacionesControlador extends Controlador
         header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
     }
-
-
-
-
-
 
 
 }

@@ -11,7 +11,7 @@ class RestablecerControlador extends Controlador
 
     public function clave()
     {
-        session_start(); // Asegurarse de que la sesión esté iniciada
+        session_start(); //sesión esté iniciada
 
         $token = $_GET['token'] ?? '';
 

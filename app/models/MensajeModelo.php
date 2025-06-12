@@ -40,7 +40,6 @@ class MensajeModelo
      */
     public function obtenerConversacion(int $u1, int $u2, int $lim = 50, int $off = 0): array
     {
-        // MySQL no siempre permite bind directo de LIMIT, así que nos aseguramos de usar PDO::PARAM_INT.
         $this->db->query("
             SELECT id_mensaje, contenido, id_remitente, id_destinatario, fecha, leido
             FROM mensajes
@@ -55,7 +54,6 @@ class MensajeModelo
         $this->db->bind(':off', $off, PDO::PARAM_INT);
 
         $rows = $this->db->registros();
-        // Vienen en orden DESC (más reciente primero). Damos vuelta para ASC (más antiguo primero).
         return is_array($rows) ? array_reverse($rows) : [];
     }
 

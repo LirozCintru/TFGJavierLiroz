@@ -17,7 +17,7 @@ class DepartamentoControlador extends Controlador
         $this->modelo = $this->modelo('DepartamentoModelo');
     }
 
-    // 📄 Listado de departamentos
+    //Listado de departamentos
     public function index()
     {
         $filtro = $_GET['busqueda'] ?? '';
@@ -43,7 +43,7 @@ class DepartamentoControlador extends Controlador
         ]);
     }
 
-    // ➕ Crear nuevo
+    //Crear nuevo
     public function crear()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -86,7 +86,7 @@ class DepartamentoControlador extends Controlador
         }
     }
 
-    // ✏️ Editar existente
+    //Editar existente
     public function editar($id)
     {
         $departamento = $this->modelo->obtenerPorId($id);
@@ -136,7 +136,7 @@ class DepartamentoControlador extends Controlador
         }
     }
 
-    // 🗑️ Eliminar departamento
+    //Eliminar departamento
     public function eliminar($id)
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {

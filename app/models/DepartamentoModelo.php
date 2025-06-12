@@ -10,7 +10,6 @@ class DepartamentoModelo
 
     public function obtenerTodos()
     {
-        // Ahora incluimos "descripcion" en el SELECT
         $this->db->query("
             SELECT 
                 id_departamento,

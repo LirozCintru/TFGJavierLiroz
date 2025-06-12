@@ -91,7 +91,7 @@ class EventosControlador extends Controlador
                 'hora' => $evento->hora,
                 'hora_fin' => $evento->hora_fin,
                 'url' => $evento->url ?: null,
-                'color' => $color, // 👈 esto es lo que se usa en JS
+                'color' => $color,
             ];
         }
 
@@ -102,10 +102,20 @@ class EventosControlador extends Controlador
     public function eliminar($id)
     {
         verificarSesionActiva();
+
+        // ADMIN o JEFE
+        if (!in_array($_SESSION['usuario']['id_rol'], [ROL_ADMIN, ROL_JEFE])) {
+            $_SESSION['error'] = 'No tienes permisos para eliminar eventos.';
+            header('Location: ' . RUTA_URL . '/ContenidoControlador/inicio');
+            exit;
+        }
+
         $this->modelo->eliminar($id);
         $_SESSION['mensajeExito'] = 'Evento eliminado correctamente.';
         header('Location: ' . RUTA_URL . '/EventosControlador/index');
+        exit;
     }
+
 
 
 

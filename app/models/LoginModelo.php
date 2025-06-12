@@ -16,19 +16,19 @@ class LoginModelo
         FROM usuarios u
         JOIN roles r ON u.id_rol = r.id_rol
         WHERE u.email = :email
-    ");    
+          AND u.activo = 1
+    ");
         $this->db->bind(':email', $datos['email']);
 
         $fila = $this->db->registro();
-        // var_dump($fila); exit;
 
-        if ($fila) {
-            if (password_verify($datos['contrasena'], $fila->contrasena)) {
-                return $fila;
-            }
+        if ($fila && password_verify($datos['contrasena'], $fila->contrasena)) {
+            return $fila;
         }
+
         return false;
     }
+
 
     public function obtenerUsuarioEmail($email)
     {

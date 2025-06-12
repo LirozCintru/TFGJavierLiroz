@@ -4,11 +4,13 @@ require_once RUTA_APP . '/config/roles.php';
 
 class LoginsControlador extends Controlador
 {
+    private $modelo;
+
     public function __construct()
     {
-        // Acceso al modelo
         $this->modelo = $this->modelo('LoginModelo');
     }
+
 
     public function index()
     {
@@ -75,7 +77,7 @@ class LoginsControlador extends Controlador
                     ];
                     unset($_SESSION['token_restablecer']);
 
-                    // Redirigir según rol (si quieres diferenciar dashboards)
+                    // Redirigir según rol (dashboards)
                     // if ($usuario->id_rol == 1) {
                     //     header("Location: " . RUTA_URL . "/admin/panel");
                     // } else {

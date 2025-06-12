@@ -8,42 +8,30 @@
         margin: 0 auto;
         font-size: 0.95rem;
         min-height: 640px;
-
         background-color: #fdfdfd;
-        /* Fondo muy suave */
         border: 1px solid #dee2e6;
-        /* Borde ligero */
         border-radius: 0.75rem;
-        /* Bordes redondeados */
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        /* Sombra suave */
     }
-
     .bg-white {
         background-color: #fbfbfc !important;
-        /* Un tono más suave que el blanco puro */
     }
-
     .fc-toolbar-title {
         font-size: 1.3rem !important;
     }
-
     #modalEnlaceRow {
         display: none;
     }
-
     .contenedor-calendario {
         margin: 0;
         padding: 0;
     }
-
     .bloque-calendario {
         border-radius: 0;
         border: none;
         box-shadow: none;
         border-top: 2px solid #dee2e6;
     }
-
     .leyenda-categoria {
         display: flex;
         align-items: center;
@@ -54,7 +42,6 @@
         font-weight: 500;
         color: #212529;
     }
-
     .color-cuadro {
         width: 16px;
         height: 16px;
@@ -107,11 +94,15 @@
                         target="_blank" rel="noopener noreferrer">Ir al enlace</a></p>
             </div>
             <div class="modal-footer">
-                <a href="#" id="btnEditar" class="btn btn-success btn-sm">✏️ Editar publicación</a>
-                <form id="formEliminarEvento" method="POST" action="" style="display: inline;">
-                    <button type="submit" class="btn btn-danger btn-sm"
-                        onclick="return confirm('¿Eliminar este evento?')">🗑️ Eliminar</button>
-                </form>
+                <?php if ($usuario && in_array($usuario['id_rol'], [ROL_ADMIN, ROL_JEFE])): ?>
+                    <div id="accionesEvento">
+                        <a href="#" id="btnEditar" class="btn btn-success btn-sm">✏️ Editar publicación</a>
+                        <form id="formEliminarEvento" method="POST" action="" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('¿Eliminar este evento?')">🗑️ Eliminar</button>
+                        </form>
+                    </div>
+                <?php endif; ?>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -164,8 +155,15 @@
                 }
 
                 // Botones
-                document.getElementById('btnEditar').href = '<?= RUTA_URL ?>/PublicacionesControlador/editar/' + e.id_publicacion;
-                document.getElementById('formEliminarEvento').action = '<?= RUTA_URL ?>/EventosControlador/eliminar/' + e.id_evento;
+                const btnEditar = document.getElementById('btnEditar');
+                if (btnEditar) {
+                    btnEditar.href = '<?= RUTA_URL ?>/PublicacionesControlador/editar/' + e.id_publicacion;
+                }
+
+                const formEliminar = document.getElementById('formEliminarEvento');
+                if (formEliminar) {
+                    formEliminar.action = '<?= RUTA_URL ?>/EventosControlador/eliminar/' + e.id_evento;
+                }
 
                 new bootstrap.Modal(document.getElementById('eventoModal')).show();
                 info.jsEvent.preventDefault();

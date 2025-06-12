@@ -47,7 +47,7 @@ class ContenidoControlador extends Controlador
         $total = $this->modelo->contarFiltradas($usuario, $tipo, $busqueda, $id_departamento);
         $total_paginas = max(1, ceil($total / $limite));
 
-        // Aquí pasamos $orden a obtenerPaginadas
+        // pasamos $orden a obtenerPaginadas
         $publicaciones = $this->modelo->obtenerPaginadas(
             $usuario,
             $tipo,

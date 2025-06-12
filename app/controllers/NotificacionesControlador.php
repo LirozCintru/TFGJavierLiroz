@@ -11,7 +11,7 @@ class NotificacionesControlador extends Controlador
         $this->notificacionModelo = $this->modelo('NotificacionModelo');
     }
 
-    // 🔔 Muestra todas las notificaciones del usuario
+    //Muestra todas las notificaciones del usuario
     public function index()
     {
         verificarSesionActiva();
@@ -44,7 +44,7 @@ class NotificacionesControlador extends Controlador
     }
 
 
-    // 🧮 Contador de notificaciones no leídas (JSON para el badge)
+    //Contador de notificaciones no leídas (JSON para el badge)
     public function contador()
     {
         verificarSesionActiva();
@@ -54,7 +54,7 @@ class NotificacionesControlador extends Controlador
         echo json_encode(['pendientes' => $pendientes]);
     }
 
-    // ✅ Marcar como leída una notificación (desde el botón)
+    //Marcar como leída una notificación (desde el botón)
     public function marcarLeida($id)
     {
         verificarSesionActiva();
@@ -66,7 +66,7 @@ class NotificacionesControlador extends Controlador
         redireccionar('/NotificacionesControlador/index');
     }
 
-    // ✅ Marcar todas como leídas
+    //Marcar todas como leídas
     public function marcarTodasLeidas()
     {
         verificarSesionActiva();
@@ -79,7 +79,7 @@ class NotificacionesControlador extends Controlador
         redireccionar('/NotificacionesControlador/index');
     }
 
-    // 🗑️ Eliminar una notificación
+    //Eliminar una notificación
     public function eliminar($id)
     {
         verificarSesionActiva();

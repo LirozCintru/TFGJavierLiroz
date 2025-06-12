@@ -8,7 +8,7 @@ class NotificacionModelo
         $this->db = new DataBase();
     }
 
-    // 🔔 Crear nueva notificación
+    // Crear nueva notificación
     public function crear($datos)
     {
         /* 1. Insertar notificación */
@@ -53,7 +53,7 @@ class NotificacionModelo
     }
 
 
-    // 📬 Obtener TODAS (leídas y no leídas)
+    // Obtener TODAS (leídas y no leídas)
     public function obtenerTodas($id_usuario)
     {
         $this->db->query("SELECT * FROM notificaciones 
@@ -63,7 +63,7 @@ class NotificacionModelo
         return $this->db->registros();
     }
 
-    // 📬 Obtener solo no leídas
+    // Obtener solo no leídas
     public function obtenerNoLeidas($id_usuario)
     {
         $this->db->query("SELECT * FROM notificaciones 
@@ -73,7 +73,7 @@ class NotificacionModelo
         return $this->db->registros();
     }
 
-    // 🔢 Contar no leídas
+    //Contar no leídas
     public function contarNoLeidas($id_usuario)
     {
         $this->db->query("SELECT COUNT(*) as total 
@@ -83,7 +83,7 @@ class NotificacionModelo
         return $this->db->registro()->total ?? 0;
     }
 
-    // ✅ Marcar una notificación como leída
+    //Marcar una notificación como leída
     public function marcarComoLeida($id_notificacion)
     {
         $this->db->query("UPDATE notificaciones 
@@ -93,7 +93,7 @@ class NotificacionModelo
         return $this->db->execute();
     }
 
-    // ✅ Marcar todas como leídas
+    //Marcar todas como leídas
     public function marcarTodasComoLeidas($usuarioId)
     {
         $this->db->query("UPDATE notificaciones 
@@ -103,7 +103,7 @@ class NotificacionModelo
         return $this->db->execute();
     }
 
-    // 🗑️ Eliminar una notificación (por ID)
+    //Eliminar notificación (por ID)
     public function eliminar($id)
     {
         $this->db->query("DELETE FROM notificaciones 
@@ -112,7 +112,7 @@ class NotificacionModelo
         return $this->db->execute();
     }
 
-    // 👥 Obtener todos los usuarios excepto el autor
+    //Obtener todos los usuarios excepto el autor
     public function obtenerTodosMenos($id_autor)
     {
         $this->db->query("SELECT id_usuario FROM usuarios 
@@ -121,7 +121,7 @@ class NotificacionModelo
         return $this->db->registros();
     }
 
-    // 👥 Obtener usuarios de un departamento, excepto el autor
+    //Obtener usuarios de un departamento, excepto el autor
     public function obtenerPorDepartamento($id_departamento, $id_autor)
     {
         $this->db->query("SELECT id_usuario FROM usuarios 
@@ -131,15 +131,26 @@ class NotificacionModelo
         return $this->db->registros();
     }
 
-    /*─────────────────────────────────────────────
+/*─────────────────────────────────────────────
  | Elimina todas las notificaciones cuya
  | id_referencia apunta a la publicación dada
  *────────────────────────────────────────────*/
-    public function eliminarPorReferencia($id_publicacion)
+    public function eliminarPorReferencia($id_referencia, $tipo = null)
     {
-        $this->db->query("DELETE FROM notificaciones WHERE id_referencia = :id");
-        $this->db->bind(':id', $id_publicacion);
+        $sql = "DELETE FROM notificaciones WHERE id_referencia = :id";
+        if ($tipo !== null) {
+            $sql .= " AND tipo = :tipo";
+        }
+
+        $this->db->query($sql);
+        $this->db->bind(':id', $id_referencia);
+
+        if ($tipo !== null) {
+            $this->db->bind(':tipo', $tipo);
+        }
+
         return $this->db->execute();
     }
+
 
 }
