@@ -43,15 +43,11 @@ class PublicacionesControlador extends Controlador
         verificarSesionActiva();
         $categorias = require RUTA_APP . '/config/categorias_evento.php';
 
-        /*Solo Admin/Jefe */
         if (!$this->esAdminOJefe()) {
-            redireccionar('/ContenidoControlador/inicio');   // sin permiso
+            redireccionar('/ContenidoControlador/inicio');
         }
 
-        /* =============== 1. Formulario enviado =============== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            /* 1.1  Datos de la publicación */
             $depSolicitado = (int) ($_POST['id_departamento'] ?? 0);
 
             $datosPub = [
@@ -59,16 +55,20 @@ class PublicacionesControlador extends Controlador
                 'contenido' => trim($_POST['contenido']),
                 'tipo' => $_POST['tipo'],
                 'id_autor' => $_SESSION['usuario']['id'],
-
-                //Selección segura del departamento:
                 'id_departamento' => ($_SESSION['usuario']['id_rol'] == ROL_ADMIN)
-                    ? $depSolicitado                      // Admin escoge cualquiera
-                    : $_SESSION['usuario']['id_departamento'], // Jefe -> el suyo
-
+                    ? $depSolicitado
+                    : $_SESSION['usuario']['id_departamento'],
                 'imagen_destacada' => $this->procesarImagen('imagen_destacada', 'pub_')
             ];
 
-            /* 1.2  Insertar publicación */
+            if (empty($datosPub['titulo']) || empty($datosPub['contenido'])) {
+                $_SESSION['errorPublicacion'] = 'Debes completar el título y el contenido.';
+                $this->vista('publicaciones/crear', [
+                    'departamentos' => $this->listaDepartamentos()
+                ]);
+                return;
+            }
+
             $id_publicacion = $this->modelo->crear($datosPub);
 
             if (!$id_publicacion) {
@@ -76,17 +76,10 @@ class PublicacionesControlador extends Controlador
                 redireccionar('/ContenidoControlador/inicio');
             }
 
-            /* 1.3  Guardar imágenes adicionales */
             $this->procesarImagenesAdicionales($id_publicacion);
 
-            /* =========================
-               2. Notificaciones publicación
-               ========================= */
             if (strtolower($datosPub['tipo']) === 'urgente') {
-
-                $usuarios = $this->notificacionModelo
-                    ->obtenerTodosMenos($_SESSION['usuario']['id']);
-
+                $usuarios = $this->notificacionModelo->obtenerTodosMenos($_SESSION['usuario']['id']);
                 foreach ($usuarios as $u) {
                     $this->notificacionModelo->crear([
                         'id_usuario_destino' => $u->id_usuario,
@@ -95,15 +88,11 @@ class PublicacionesControlador extends Controlador
                         'id_referencia' => $id_publicacion
                     ]);
                 }
-
             } elseif ($datosPub['tipo'] === 'departamento') {
-
-                $usuarios = $this->notificacionModelo
-                    ->obtenerPorDepartamento(
-                        $_SESSION['usuario']['id_departamento'],
-                        $_SESSION['usuario']['id']
-                    );
-
+                $usuarios = $this->notificacionModelo->obtenerPorDepartamento(
+                    $_SESSION['usuario']['id_departamento'],
+                    $_SESSION['usuario']['id']
+                );
                 foreach ($usuarios as $u) {
                     $this->notificacionModelo->crear([
                         'id_usuario_destino' => $u->id_usuario,
@@ -114,15 +103,37 @@ class PublicacionesControlador extends Controlador
                 }
             }
 
-            /* =========================
-               3. Evento vinculado (opcional)
-               ========================= */
-            $evento_id = null;
-            if (
-                !empty($_POST['activar_evento']) &&
-                !empty($_POST['evento_titulo']) &&
-                !empty($_POST['evento_fecha'])
-            ) {
+            if (!empty($_POST['activar_evento'])) {
+                if (empty($_POST['evento_titulo']) || empty($_POST['evento_fecha'])) {
+                    $_SESSION['errorPublicacion'] = 'Debes completar el título y la fecha del evento.';
+                    $this->vista('publicaciones/crear', [
+                        'departamentos' => $this->listaDepartamentos()
+                    ]);
+                    return;
+                }
+
+                $fecha_inicio = $_POST['evento_fecha'];
+                $fecha_fin = $_POST['evento_fecha_fin'] ?? null;
+                $hora_inicio = $_POST['evento_hora'];
+                $hora_fin = $_POST['evento_hora_fin'] ?? null;
+                $todo_el_dia = isset($_POST['evento_todo_el_dia']) ? 1 : 0;
+
+                if (!empty($fecha_fin) && $fecha_fin < $fecha_inicio) {
+                    $_SESSION['errorPublicacion'] = 'La fecha de fin no puede ser anterior a la fecha de inicio del evento.';
+                    $this->vista('publicaciones/crear', [
+                        'departamentos' => $this->listaDepartamentos()
+                    ]);
+                    return;
+                }
+
+                if (!$todo_el_dia && $fecha_fin == $fecha_inicio && !empty($hora_inicio) && !empty($hora_fin) && $hora_fin < $hora_inicio) {
+                    $_SESSION['errorPublicacion'] = 'La hora de fin no puede ser anterior a la hora de inicio.';
+                    $this->vista('publicaciones/crear', [
+                        'departamentos' => $this->listaDepartamentos()
+                    ]);
+                    return;
+                }
+
                 $eventoModelo = $this->modelo('EventoModelo');
 
                 $evento_id = $eventoModelo->crear([
@@ -132,7 +143,7 @@ class PublicacionesControlador extends Controlador
                     'hora' => $_POST['evento_hora'],
                     'fecha_fin' => $_POST['evento_fecha_fin'] ?? null,
                     'hora_fin' => $_POST['evento_hora_fin'] ?? null,
-                    'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
+                    'todo_el_dia' => $todo_el_dia,
                     'url' => $_POST['evento_url'] ?? null,
                     'color' => $categorias[$_POST['evento_categoria']]['color'] ?? '#0d6efd',
                     'categoria' => $_POST['evento_categoria'] ?? 'general',
@@ -140,7 +151,6 @@ class PublicacionesControlador extends Controlador
                     'id_publicacion' => $id_publicacion
                 ]);
 
-                /* 3.1  Notificación por evento */
                 if ($evento_id) {
                     $destinos = ($datosPub['tipo'] === 'departamento')
                         ? $this->notificacionModelo->obtenerPorDepartamento(
@@ -160,19 +170,14 @@ class PublicacionesControlador extends Controlador
                 }
             }
 
-            /* 4. Éxito */
             $_SESSION['mensajeExito'] = 'Publicación creada correctamente.';
             redireccionar('/ContenidoControlador/inicio');
-
-            /* =============== 2. Primera carga del formulario =============== */
         } else {
             $this->vista('publicaciones/crear', [
                 'departamentos' => $this->listaDepartamentos()
             ]);
         }
     }
-
-
 
     public function eliminar($id)
     {
@@ -225,7 +230,6 @@ class PublicacionesControlador extends Controlador
     {
         verificarSesionActiva();
 
-        /*Solo Admin / Jefe */
         if (!$this->esAdminOJefe()) {
             redireccionar('/ContenidoControlador/inicio');
         }
@@ -237,12 +241,23 @@ class PublicacionesControlador extends Controlador
             redireccionar('/ContenidoControlador/inicio');
         }
 
-        /* ------------- POST ------------- */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            /* Imagen destacada */
-            $imagen_destacada = $publicacion->imagen_destacada;
+            // Validación mínima
+            $titulo = trim($_POST['titulo']);
+            $contenido = trim($_POST['contenido']);
 
+            if (empty($titulo) || empty($contenido)) {
+                $_SESSION['errorPublicacion'] = 'Debes completar el título y el contenido.';
+                return $this->vista('publicaciones/editar', [
+                    'publicacion' => $publicacion,
+                    'imagenes_adicionales' => $this->modelo->obtenerImagenesPublicacion($id),
+                    'departamentos' => $this->listaDepartamentos()
+                ]);
+            }
+
+            // Imagen destacada
+            $imagen_destacada = $publicacion->imagen_destacada;
             if (isset($_POST['eliminar_imagen']) && $imagen_destacada) {
                 $this->eliminarImagenFisica($imagen_destacada);
                 $imagen_destacada = null;
@@ -250,33 +265,33 @@ class PublicacionesControlador extends Controlador
 
             $nuevaImg = $this->procesarImagen('imagen_destacada', 'pub_');
             if ($nuevaImg) {
-                if ($imagen_destacada)
+                if ($imagen_destacada) {
                     $this->eliminarImagenFisica($imagen_destacada);
+                }
                 $imagen_destacada = $nuevaImg;
             }
 
-            /* Actualizar publicación */
+            // Actualizar publicación
             $this->modelo->actualizar([
                 'id_publicacion' => $id,
-                'titulo' => trim($_POST['titulo']),
-                'contenido' => trim($_POST['contenido']),
+                'titulo' => $titulo,
+                'contenido' => $contenido,
                 'tipo' => $_POST['tipo'],
-
                 'id_departamento' => ($_SESSION['usuario']['id_rol'] == ROL_ADMIN)
                     ? (int) ($_POST['id_departamento'] ?? 0)
                     : $_SESSION['usuario']['id_departamento'],
-
                 'imagen_destacada' => $imagen_destacada
             ]);
 
-            /* Imágenes adicionales */
+            // Imágenes adicionales
             if (!empty($_POST['eliminar_imagenes'])) {
-                foreach ($_POST['eliminar_imagenes'] as $ruta)
+                foreach ($_POST['eliminar_imagenes'] as $ruta) {
                     $this->modelo->eliminarImagenAdicional($id, $ruta);
+                }
             }
             $this->procesarImagenesAdicionales($id);
 
-            /* Evento vinculado */
+            // Evento
             $eventoModelo = $this->modelo('EventoModelo');
             $evento = $eventoModelo->obtenerPorPublicacion($id)[0] ?? null;
 
@@ -284,6 +299,47 @@ class PublicacionesControlador extends Controlador
                 if (isset($_POST['eliminar_evento'])) {
                     $eventoModelo->eliminar($evento->id_evento);
                 } else {
+                    // Validación básica evento
+                    if (empty($_POST['evento_titulo']) || empty($_POST['evento_fecha'])) {
+                        $_SESSION['errorPublicacion'] = 'Debes completar el título y la fecha del evento.';
+                        return $this->vista('publicaciones/editar', [
+                            'publicacion' => $publicacion,
+                            'imagenes_adicionales' => $this->modelo->obtenerImagenesPublicacion($id),
+                            'departamentos' => $this->listaDepartamentos()
+                        ]);
+                    }
+
+                    // Validación de coherencia entre fechas y horas
+                    $fecha_inicio = $_POST['evento_fecha'];
+                    $fecha_fin = $_POST['evento_fecha_fin'] ?? null;
+                    $hora_inicio = $_POST['evento_hora'];
+                    $hora_fin = $_POST['evento_hora_fin'] ?? null;
+                    $todo_el_dia = isset($_POST['evento_todo_el_dia']) ? 1 : 0;
+
+                    if (!empty($fecha_fin) && $fecha_fin < $fecha_inicio) {
+                        $_SESSION['errorPublicacion'] = 'La fecha de fin no puede ser anterior a la fecha de inicio del evento.';
+                        return $this->vista('publicaciones/editar', [
+                            'publicacion' => $publicacion,
+                            'imagenes_adicionales' => $this->modelo->obtenerImagenesPublicacion($id),
+                            'departamentos' => $this->listaDepartamentos()
+                        ]);
+                    }
+
+                    if (
+                        !$todo_el_dia &&
+                        $fecha_fin == $fecha_inicio &&
+                        !empty($hora_inicio) &&
+                        !empty($hora_fin) &&
+                        $hora_fin < $hora_inicio
+                    ) {
+                        $_SESSION['errorPublicacion'] = 'La hora de fin no puede ser anterior a la hora de inicio.';
+                        return $this->vista('publicaciones/editar', [
+                            'publicacion' => $publicacion,
+                            'imagenes_adicionales' => $this->modelo->obtenerImagenesPublicacion($id),
+                            'departamentos' => $this->listaDepartamentos()
+                        ]);
+                    }
+
                     $eventoModelo->actualizar([
                         'id_evento' => $evento->id_evento,
                         'titulo' => trim($_POST['evento_titulo']),
@@ -292,7 +348,7 @@ class PublicacionesControlador extends Controlador
                         'hora' => $_POST['evento_hora'],
                         'fecha_fin' => $_POST['evento_fecha_fin'] ?? null,
                         'hora_fin' => $_POST['evento_hora_fin'] ?? null,
-                        'todo_el_dia' => isset($_POST['evento_todo_el_dia']) ? 1 : 0,
+                        'todo_el_dia' => $todo_el_dia,
                         'url' => $_POST['evento_url'] ?? null,
                         'color' => $categorias[$_POST['evento_categoria']]['color'] ?? '#0d6efd',
                         'categoria' => $_POST['evento_categoria'] ?? 'General',
@@ -306,10 +362,9 @@ class PublicacionesControlador extends Controlador
             redireccionar('/ContenidoControlador/inicio');
         }
 
-        /* ------------- GET ------------- */
+        // GET
         $imagenes_adicionales = $this->modelo->obtenerImagenesPublicacion($id);
-        $publicacion->evento = ($this->modelo('EventoModelo')
-            ->obtenerPorPublicacion($id)[0] ?? null);
+        $publicacion->evento = ($this->modelo('EventoModelo')->obtenerPorPublicacion($id)[0] ?? null);
 
         $this->vista('publicaciones/editar', [
             'publicacion' => $publicacion,

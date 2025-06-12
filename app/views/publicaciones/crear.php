@@ -13,12 +13,21 @@ $departamentos = $datos['departamentos'] ?? [];
         </div>
 
         <div class="card-body bg-white">
+            <?php if (!empty($_SESSION['errorPublicacion'])): ?>
+                <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <?= htmlspecialchars($_SESSION['errorPublicacion']) ?>
+                </div>
+                <?php unset($_SESSION['errorPublicacion']); ?>
+            <?php endif; ?>
+
             <form class="needs-validation" novalidate action="<?= RUTA_URL ?>/PublicacionesControlador/crear"
                 method="POST" enctype="multipart/form-data">
+
                 <!-- Título -->
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control rounded-3" id="titulo" name="titulo" placeholder="Título"
-                        required>
+                        value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>" required>
                     <label for="titulo">Título</label>
                 </div>
 
@@ -26,7 +35,7 @@ $departamentos = $datos['departamentos'] ?? [];
                 <div class="mb-4">
                     <label for="contenido" class="form-label fw-semibold">Contenido</label>
                     <textarea class="form-control rounded-3" id="contenido" name="contenido" rows="6"
-                        required></textarea>
+                        required><?= htmlspecialchars($_POST['contenido'] ?? '') ?></textarea>
                 </div>
 
                 <!-- Tipo & Departamento -->
@@ -34,9 +43,11 @@ $departamentos = $datos['departamentos'] ?? [];
                     <div class="col-md-6">
                         <div class="form-floating">
                             <select class="form-select rounded-3" id="tipo" name="tipo" required>
-                                <option value="General">General</option>
-                                <option value="Urgente">Urgente</option>
-                                <option value="Departamental">Departamental</option>
+                                <option value="General" <?= ($_POST['tipo'] ?? '') === 'General' ? 'selected' : '' ?>>
+                                    General</option>
+                                <option value="Urgente" <?= ($_POST['tipo'] ?? '') === 'Urgente' ? 'selected' : '' ?>>
+                                    Urgente</option>
+                                <option value="Departamental" <?= ($_POST['tipo'] ?? '') === 'Departamental' ? 'selected' : '' ?>>Departamental</option>
                             </select>
                             <label for="tipo">Tipo de publicación</label>
                         </div>
@@ -48,7 +59,7 @@ $departamentos = $datos['departamentos'] ?? [];
                                 <?= ($_SESSION['usuario']['id_rol'] == ROL_ADMIN) ? '' : 'disabled'; ?> required>
                                 <?php foreach ($departamentos as $d): ?>
                                     <option value="<?= $d->id_departamento ?>"
-                                        <?= $d->id_departamento == $_SESSION['usuario']['id_departamento'] ? 'selected' : ''; ?>>
+                                        <?= ($d->id_departamento == ($_POST['id_departamento'] ?? $_SESSION['usuario']['id_departamento'])) ? 'selected' : ''; ?>>
                                         <?= htmlspecialchars($d->nombre) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -80,17 +91,20 @@ $departamentos = $datos['departamentos'] ?? [];
 
                 <!-- Evento toggle -->
                 <div class="form-check form-switch mb-4">
-                    <input class="form-check-input" type="checkbox" id="toggleEvento" name="activar_evento">
+                    <input class="form-check-input" type="checkbox" id="toggleEvento" name="activar_evento"
+                        <?= !empty($_POST['activar_evento']) ? 'checked' : '' ?>>
                     <label class="form-check-label" for="toggleEvento">¿Vincular un evento a esta publicación?</label>
                 </div>
 
                 <!-- Evento campos -->
-                <div id="camposEvento" class="border rounded p-3 bg-light-subtle mb-4" style="display:none;">
+                <div id="camposEvento" class="border rounded p-3 bg-light-subtle mb-4"
+                    style="<?= !empty($_POST['activar_evento']) ? 'display:block;' : 'display:none;' ?>">
                     <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Detalles del evento</h6>
 
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="evento_titulo" name="evento_titulo"
-                            placeholder="Título del evento">
+                            placeholder="Título del evento"
+                            value="<?= htmlspecialchars($_POST['evento_titulo'] ?? '') ?>">
                         <label for="evento_titulo">Título del evento</label>
                     </div>
 
@@ -99,7 +113,9 @@ $departamentos = $datos['departamentos'] ?? [];
                             <div class="form-floating">
                                 <select class="form-select" name="evento_categoria" id="evento_categoria">
                                     <?php foreach ($categorias as $nombre => $color): ?>
-                                        <option value="<?= htmlspecialchars($nombre) ?>" <?= $nombre === 'General' ? 'selected' : '' ?>><?= $nombre ?></option>
+                                        <option value="<?= htmlspecialchars($nombre) ?>" <?= (($_POST['evento_categoria'] ?? 'General') === $nombre) ? 'selected' : '' ?>>
+                                            <?= $nombre ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <label for="evento_categoria">Categoría</label>
@@ -108,7 +124,8 @@ $departamentos = $datos['departamentos'] ?? [];
                         <div class="col-md-8">
                             <div class="form-floating">
                                 <input type="url" class="form-control" id="evento_url" name="evento_url"
-                                    placeholder="URL asociada">
+                                    placeholder="URL asociada"
+                                    value="<?= htmlspecialchars($_POST['evento_url'] ?? '') ?>">
                                 <label for="evento_url">URL asociada (opcional)</label>
                             </div>
                         </div>
@@ -117,25 +134,29 @@ $departamentos = $datos['departamentos'] ?? [];
                     <div class="row g-4 mb-4">
                         <div class="col-md-3">
                             <div class="form-floating">
-                                <input type="date" class="form-control" id="evento_fecha" name="evento_fecha">
+                                <input type="date" class="form-control" id="evento_fecha" name="evento_fecha"
+                                    value="<?= htmlspecialchars($_POST['evento_fecha'] ?? '') ?>">
                                 <label for="evento_fecha">Fecha inicio</label>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating">
-                                <input type="time" class="form-control" id="evento_hora" name="evento_hora">
+                                <input type="time" class="form-control" id="evento_hora" name="evento_hora"
+                                    value="<?= isset($_POST['evento_hora']) ? htmlspecialchars($_POST['evento_hora']) : '' ?>">
                                 <label for="evento_hora">Hora inicio</label>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating">
-                                <input type="date" class="form-control" id="evento_fecha_fin" name="evento_fecha_fin">
+                                <input type="date" class="form-control" id="evento_fecha_fin" name="evento_fecha_fin"
+                                    value="<?= htmlspecialchars($_POST['evento_fecha_fin'] ?? '') ?>">
                                 <label for="evento_fecha_fin">Fecha fin</label>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating">
-                                <input type="time" class="form-control" id="evento_hora_fin" name="evento_hora_fin">
+                                <input type="time" class="form-control" id="evento_hora_fin" name="evento_hora_fin"
+                                    value="<?= htmlspecialchars($_POST['evento_hora_fin'] ?? '') ?>">
                                 <label for="evento_hora_fin">Hora fin</label>
                             </div>
                         </div>
@@ -143,14 +164,14 @@ $departamentos = $datos['departamentos'] ?? [];
 
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" id="evento_todo_el_dia"
-                            name="evento_todo_el_dia">
+                            name="evento_todo_el_dia" <?= isset($_POST['evento_todo_el_dia']) ? 'checked' : '' ?>>
                         <label class="form-check-label" for="evento_todo_el_dia">Evento de todo el día</label>
                     </div>
 
                     <div class="mb-3">
                         <label for="evento_descripcion" class="form-label fw-semibold">Descripción</label>
                         <textarea class="form-control" id="evento_descripcion" name="evento_descripcion"
-                            rows="3"></textarea>
+                            rows="3"><?= htmlspecialchars($_POST['evento_descripcion'] ?? '') ?></textarea>
                     </div>
                 </div>
 
@@ -168,6 +189,7 @@ $departamentos = $datos['departamentos'] ?? [];
         </div>
     </div>
 </section>
+
 
 <script>
     document.getElementById('toggleEvento').addEventListener('change', (e) => {
@@ -192,6 +214,48 @@ $departamentos = $datos['departamentos'] ?? [];
             reader.readAsDataURL(file);
         });
     }
+
+    //  validación visual del formulario
+    (() => {
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+
+    // Validación fechas y horas evento
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const toggle = document.getElementById('toggleEvento');
+        if (toggle.checked) {
+            const fechaInicio = document.getElementById('evento_fecha').value;
+            const fechaFin = document.getElementById('evento_fecha_fin').value;
+            const horaInicio = document.getElementById('evento_hora').value;
+            const horaFin = document.getElementById('evento_hora_fin').value;
+            const todoElDia = document.getElementById('evento_todo_el_dia').checked;
+
+            // Validación de fechas
+            if (fechaFin && fechaFin < fechaInicio) {
+                e.preventDefault();
+                alert('La fecha de fin no puede ser anterior a la de inicio.');
+                return;
+            }
+
+            // Validación de horas si misma fecha y no todo el día
+            if (!todoElDia && fechaFin === fechaInicio && horaInicio && horaFin && horaFin < horaInicio) {
+                e.preventDefault();
+                alert('La hora de fin no puede ser anterior a la de inicio.');
+                return;
+            }
+        }
+    });
+
 </script>
 
 <?php require RUTA_APP . '/views/inc/footer.php'; ?>

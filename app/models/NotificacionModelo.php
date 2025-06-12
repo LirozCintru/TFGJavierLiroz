@@ -131,16 +131,17 @@ class NotificacionModelo
         return $this->db->registros();
     }
 
-/*─────────────────────────────────────────────
- | Elimina todas las notificaciones cuya
- | id_referencia apunta a la publicación dada
- *────────────────────────────────────────────*/
+    /*─────────────────────────────────────────────
+     | Elimina todas las notificaciones cuya
+     | id_referencia apunta a la publicación dada
+     *────────────────────────────────────────────*/
     public function eliminarPorReferencia($id_referencia, $tipo = null)
     {
         $sql = "DELETE FROM notificaciones WHERE id_referencia = :id";
         if ($tipo !== null) {
-            $sql .= " AND tipo = :tipo";
+            $sql .= " AND LOWER(tipo) = LOWER(:tipo)";
         }
+
 
         $this->db->query($sql);
         $this->db->bind(':id', $id_referencia);

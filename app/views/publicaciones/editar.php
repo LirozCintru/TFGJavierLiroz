@@ -177,8 +177,8 @@ $departamentos = $datos['departamentos'] ?? [];
                         <div class="col-md-3">
                             <div class="form-floating">
                                 <input type="time" id="evento_hora_fin" name="evento_hora_fin" class="form-control"
-                                    value="<?= substr($publicacion->evento->hora_fin, 0, 5) ?>">
-                                <label for="evento_hora_fin">Hora fin</label>
+                                    value="<?= $publicacion->evento->hora ? substr($publicacion->evento->hora, 0, 5) : '' ?>">
+                                    <label for=" evento_hora_fin">Hora fin</label>
                             </div>
                         </div>
                     </div>
@@ -235,6 +235,21 @@ $departamentos = $datos['departamentos'] ?? [];
             reader.readAsDataURL(file);
         });
     }
+
+    // Validación visual de formulario Bootstrap
+    (() => {
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
 </script>
 
 <?php require RUTA_APP . '/views/inc/footer.php'; ?>
