@@ -10,6 +10,8 @@
   <link href="<?php echo RUTA_URL ?>/public/css/main.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="icon" href="<?php echo RUTA_URL ?>/public/img/loho.png" type="image/png">
+
 
   <style>
     /*Fondo de la navbar */
